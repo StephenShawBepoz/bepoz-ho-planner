@@ -224,12 +224,16 @@ strong{color:var(--ink);font-weight:600}
   body{background:#fff}
   .tab-bar,.sum-actions,#pane-calculator,#pane-explainer,#pane-serverspec{display:none!important}
   #pane-summary{display:block!important}
-  .sum-doc{border:none;box-shadow:none}
+  .sum-doc{border:none;box-shadow:none;border-top:5px solid #673AB6}
   .sum-hdr,.sum-total-bar,.sum-tbl th,.sum-spec-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sum-doc{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .wrap{padding:0}
+  .sum-body{padding:20px 28px}
+  .sum-hdr{padding:22px 28px}
+  .sum-sec{margin-bottom:16px;page-break-inside:avoid}
   .sum-tbl tr{page-break-inside:avoid}
-  .sum-sec{page-break-inside:avoid}
   .sum-hdr{page-break-after:avoid}
+  .sum-foot{padding:10px 28px}
 }
 @media(max-width:600px){
   .wrap{padding:20px 16px 60px}
@@ -615,46 +619,49 @@ strong{color:var(--ink);font-weight:600}
 
     <div class="sum-body">
       <div class="sum-sec">
-        <h2>Total CALs required</h2>
+        <h2>Your Bepoz Licence Requirements</h2>
         <div class="sum-total-bar">
-          <div class="sum-total-lbl">Client Access Licences</div>
+          <div class="sum-total-lbl">Total Client Access Licences</div>
           <div class="sum-total-n" id="sum-total">0</div>
         </div>
         <table class="sum-tbl">
-          <thead><tr><th>Item</th><th>Licence type</th><th>Where licenced</th><th>CALs</th></tr></thead>
+          <thead><tr><th>Item</th><th>Licence type</th><th>CALs</th></tr></thead>
           <tbody id="sum-tbody"></tbody>
         </table>
-        <div class="sum-note">All CALs are issued and held at Head Office. Remote venues connect via VPN through a SmartController — each venue requires one CAL for this connection. SmartPOS Mobile and Kiosk devices do not require a CAL and are not included in this count.</div>
+        <div class="sum-note">All CALs are issued and held at Head Office. Remote venues connect via VPN through a SmartController — one CAL per venue. SmartPOS Mobile and Kiosk do not require a CAL.</div>
       </div>
 
       <div class="sum-sec">
-        <h2>Head Office server specification</h2>
+        <h2>Recommended Head Office Server</h2>
         <div class="sum-spec-hdr">
           <div style="font-size:11px;opacity:0.7;margin-bottom:10px;font-weight:500;letter-spacing:0.08em;color:#fff">MINIMUM RECOMMENDED SPECIFICATION</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px">
             <div class="sum-spec-stat"><div class="sum-spec-val" id="sum-spec-ram">—</div><div class="sum-spec-lbl">RAM</div></div>
             <div class="sum-spec-stat"><div class="sum-spec-val" id="sum-spec-cpu">—</div><div class="sum-spec-lbl">CPU cores</div></div>
-            <div class="sum-spec-stat"><div class="sum-spec-val">SSD</div><div class="sum-spec-lbl">Storage</div></div>
+            <div class="sum-spec-stat"><div class="sum-spec-val" id="sum-spec-storage">256GB</div><div class="sum-spec-lbl">SSD storage</div></div>
           </div>
         </div>
         <table class="sum-tbl">
           <thead><tr><th>Licence</th><th>Recommendation</th></tr></thead>
           <tbody id="sum-spec-tbody"></tbody>
         </table>
-        <div class="sum-note" style="margin-top:10px">Server specification is a minimum recommendation based on venue and user counts. Always recommend the next tier up for production workloads. Full breakdown in the Server Spec tab.</div>
+        <div class="sum-note" style="margin-top:10px">Minimum baseline — always recommend the next tier up for production. Your IT team should validate against your infrastructure environment.</div>
       </div>
 
       <div class="sum-sec">
-        <h2>About Client Access Licences</h2>
-        <p style="font-size:13px;color:var(--ink2);margin-bottom:8px">A <strong>Client Access Licence (CAL)</strong> is required for every device, user, or system connection that accesses the Bepoz platform. All licences are administered at Head Office and cover connections from remote venues, on-site HO equipment, and remote users.</p>
-        <p style="font-size:13px;color:var(--ink2)" id="sum-remote-note"></p>
+        <h2>About this assessment</h2>
+        <ul style="font-size:13px;color:var(--ink2);line-height:1.75;padding-left:18px;margin:0" id="sum-notes-list">
+          <li>This assessment is based on information provided at time of scoping — changes to venue count, device quantities, or user numbers will affect the final requirements.</li>
+          <li>The server specification is a minimum baseline. Always recommend the next tier up for production workloads.</li>
+          <li>CAL licences are perpetual. Support and maintenance are covered under your Bepoz agreement.</li>
+          <li>This document does not constitute a formal quote. Final pricing is subject to commercial agreement with Oolio Group.</li>
+        </ul>
+        <p style="font-size:13px;color:var(--ink2);margin-top:8px;display:none" id="sum-remote-note"></p>
       </div>
 
-      <div class="sum-sec">
-        <h2>Important notes</h2>
-        <p style="font-size:13px;color:var(--ink2)">This assessment is based on information provided at time of scoping. Changes to venue count, device quantities, or user numbers will affect the final CAL requirement. Confirm all figures with your Bepoz onboarding contact before finalising your order.</p>
-        <p style="font-size:13px;color:var(--ink2);margin-top:6px">The server specification is a <strong>minimum baseline</strong> — always recommend the next tier up for production workloads. Your IT team should validate the final spec against your infrastructure environment.</p>
-        <p style="font-size:13px;color:var(--ink2);margin-top:6px">This document does not constitute a formal quote. Final pricing is subject to commercial agreement with Oolio Group. CAL licences are perpetual; support and maintenance are covered under your Bepoz agreement.</p>
+      <div class="sum-sec" style="background:var(--purple-l);border:1.5px solid var(--purple-border);border-radius:var(--r);padding:18px 22px">
+        <h2 style="border-bottom-color:var(--purple-border)">Next steps</h2>
+        <p style="font-size:13px;color:var(--ink2)">Your Bepoz onboarding team will use this assessment to prepare a formal quote. Contact <strong id="sum-next-bdm">your Bepoz representative</strong> to proceed.</p>
       </div>
     </div>
 
@@ -795,7 +802,8 @@ function render() {
   const date = gs('doc-date');
   const g = id => document.getElementById(id);
 
-  g('sum-title').textContent    = cn ? `CAL Requirements — ${cn}` : 'CAL Requirements';
+  g('sum-title').textContent    = cn ? `Bepoz Licence & Infrastructure Assessment — ${cn}` : 'Bepoz Licence & Infrastructure Assessment';
+  g('sum-next-bdm').textContent = bdm || 'your Bepoz representative';
   g('sum-subtitle').textContent = `Prepared for: ${cn||'—'}`;
   g('sum-bdm').textContent      = `Prepared by: ${bdm||'—'}`;
   g('sum-date-el').textContent  = `Date: ${date||'—'}`;
@@ -805,17 +813,23 @@ function render() {
   const refDate = new Date().toISOString().slice(0,10).replace(/-/g,'');
   const refSuffix = cn ? cn.replace(/[^a-zA-Z0-9]/g,'').toUpperCase().slice(0,4) : 'XXXX';
   g('sum-ref').textContent = `Ref: BEP-${refDate}-${refSuffix}`;
-  g('sum-remote-note').textContent = hoRem > 0
-    ? `Remote access licences in this assessment use ${hoRType==='device'?'Device CALs (one licence per connecting device)':'User CALs (one licence per named user, regardless of how many devices they connect from)'}. Contact your Bepoz representative to change the licence type.`
-    : '';
+  const remoteNote = g('sum-remote-note');
+  if (remoteNote) {
+    if (hoRem > 0) {
+      remoteNote.style.display = 'block';
+      remoteNote.textContent = `Remote access licences use ${hoRType==='device'?'Device CALs (one per connecting device)':'User CALs (one per named user, across all devices)'}.`;
+    } else {
+      remoteNote.style.display = 'none';
+    }
+  }
 
   const sb = g('sum-tbody');
   if (sb) {
     sb.innerHTML = lines.map(l=>`<tr>
-      <td>${l.label}</td><td>${l.type}</td><td>${l.where}</td><td>${l.cals}</td>
+      <td>${l.label}</td><td>${l.type}</td><td>${l.cals}</td>
     </tr>`).join('');
     sb.innerHTML += `<tr class="trow-total">
-      <td colspan="3"><strong>Total CALs</strong></td><td>${total}</td>
+      <td colspan="2"><strong>Total CALs</strong></td><td>${total}</td>
     </tr>`;
   }
 
@@ -997,13 +1011,15 @@ function renderSpec() {
   const sg = id => document.getElementById(id);
   if (sg('sum-spec-ram')) sg('sum-spec-ram').textContent = ramFinal + 'GB';
   if (sg('sum-spec-cpu')) sg('sum-spec-cpu').textContent = coreFinal;
+  // Storage guidance: 256GB min, bump to 512GB for larger deployments
+  if (sg('sum-spec-storage')) sg('sum-spec-storage').textContent = (ramFinal >= 32 || venueCount >= 10) ? '512GB' : '256GB';
   if (sg('sum-spec-tbody')) {
     const tsplusLine = tsplusRec
-      ? `Oolio Bepoz Cloud ${tsplusRec.name} — up to ${tsplusRec.conc === 999 ? 'unlimited' : tsplusRec.conc} concurrent users`
-      : 'Not required (Bepoz Cloud not enabled)';
+      ? `Oolio Bepoz Cloud ${tsplusRec.name} — ${tsplusRec.conc === 999 ? 'unlimited' : 'up to ' + tsplusRec.conc} concurrent users`
+      : 'Not required';
     sg('sum-spec-tbody').innerHTML = `
-      <tr><td>SQL Server Standard</td><td>${sqlPacks} × 2-core packs (${sqlCores} cores, per-core licensing)</td></tr>
-      <tr><td>Windows Server Standard</td><td>${wsPacksNeeded} × 2-core packs (minimum 8 packs per server)</td></tr>
+      <tr><td>SQL Server Standard</td><td>${sqlCores}-core licence (per-core, all users &amp; devices covered)</td></tr>
+      <tr><td>Windows Server Standard</td><td>${wsPacksNeeded * 2}-core licence — covers host + up to 2 VMs</td></tr>
       <tr><td>Oolio Bepoz Cloud</td><td>${tsplusLine}</td></tr>`;
   }
 }
