@@ -507,6 +507,19 @@ strong{color:var(--ink);font-weight:600}
         </div>
       </div>
       <div style="font-size:12px;color:var(--ink3)">These values are pre-filled from the Calculator tab. Concurrent users should reflect peak simultaneous logins — typically 60–70% of total named users for a busy site.</div>
+      <div style="border-top:1px solid var(--rule);margin-top:14px;padding-top:14px">
+        <div class="field-section-label" style="margin-bottom:10px">Database size</div>
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:start">
+          <div class="field">
+            <label>Current / estimated DB size (GB)</label>
+            <input type="number" id="spec-db-size" min="0" value="0" placeholder="0 = auto-estimate" oninput="renderSpec()">
+          </div>
+          <div style="font-size:12px;color:var(--ink3);line-height:1.65;padding-top:22px">
+            Leave at <strong>0</strong> to auto-estimate from venue and user counts. For existing clients, enter the actual SQL database size in GB — check in SQL Server Management Studio under <em>Database Properties → General → Size</em>.
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--ink3);margin-top:10px" id="spec-db-note"></div>
+      </div>
     </div>
   </section>
 
@@ -519,7 +532,7 @@ strong{color:var(--ink);font-weight:600}
       <div class="spec-result-grid">
         <div class="spec-stat"><div class="spec-stat-val" id="spec-ram-val">—</div><div class="spec-stat-lbl">RAM</div><div class="spec-stat-sub" id="spec-ram-sub"></div></div>
         <div class="spec-stat"><div class="spec-stat-val" id="spec-cpu-val">—</div><div class="spec-stat-lbl">CPU cores</div><div class="spec-stat-sub" id="spec-cpu-sub"></div></div>
-        <div class="spec-stat"><div class="spec-stat-val">SSD</div><div class="spec-stat-lbl">Storage type</div><div class="spec-stat-sub">NVMe preferred</div></div>
+        <div class="spec-stat"><div class="spec-stat-val" id="spec-storage-val">—</div><div class="spec-stat-lbl">SSD storage</div><div class="spec-stat-sub">NVMe preferred</div></div>
       </div>
     </div>
     <div id="spec-hw-warning" class="warning-box" style="display:none"></div>
@@ -535,6 +548,25 @@ strong{color:var(--ink);font-weight:600}
         </tr></tfoot>
       </table>
       <div class="spec-formula-note" id="spec-formula-note"></div>
+    </div>
+  </section>
+
+  <!-- STORAGE BREAKDOWN -->
+  <section>
+    <div class="sec-label">Storage recommendation</div>
+    <h2>SSD sizing</h2>
+    <p style="margin-bottom:14px">Storage is sized to cover the OS, application, database, and — critically — the space needed during a Bepoz version upgrade, which requires <strong>2.5× the current database size</strong> as free working space.</p>
+    <div class="spec-table-wrap" style="margin-bottom:14px">
+      <div class="spec-breakdown-title">Storage breakdown</div>
+      <table class="tbl">
+        <thead><tr><th>Component</th><th>Notes</th><th style="text-align:right">GB</th></tr></thead>
+        <tbody id="spec-storage-tbody"></tbody>
+        <tfoot><tr>
+          <td colspan="2"><strong>Minimum recommended</strong></td>
+          <td class="num" id="spec-storage-total">—</td>
+        </tr></tfoot>
+      </table>
+      <div class="spec-formula-note" id="spec-storage-note"></div>
     </div>
   </section>
 
@@ -1062,9 +1094,33 @@ function renderSpec() {
   // ── Windows Server licensing ──
   // Sold in 2-core packs, minimum 8 packs (= 16 core licences) per server
 
+  // ── STORAGE calculation ──
+  const storageFixed   = 80;  // OS (~50GB) + SQL Server (~20GB) + Bepoz app (~10GB)
+  const dbPerVenue     = 5;   // GB per venue (transaction data, rough estimate)
+  const dbPerUser      = 0.5; // GB per named user (accounts, reports, audit logs)
+  const dbEnteredRaw   = gv('spec-db-size');
+  const dbAutoEstimate = 10 + (venueCount * dbPerVenue) + (usersTotal * dbPerUser);
+  const dbSize         = dbEnteredRaw > 0 ? dbEnteredRaw : dbAutoEstimate;
+  const dbIsAuto       = dbEnteredRaw <= 0;
+  const dbUpgrade      = dbSize * 2.5;   // upgrade working space (2.5× rule)
+  const dbLog          = dbSize * 0.25;  // SQL transaction log buffer
+  const storageRaw     = storageFixed + dbSize + dbUpgrade + dbLog;
+  const storageSizes   = [256, 512, 1024, 2048];
+  const storageFinal   = storageSizes.find(s => s >= storageRaw) || 2048;
+  const storageLabel   = storageFinal >= 1024 ? (storageFinal / 1024) + 'TB' : storageFinal + 'GB';
+
+  // DB note
+  const dbNoteEl = document.getElementById('spec-db-note');
+  if (dbNoteEl) {
+    dbNoteEl.textContent = dbIsAuto
+      ? `Auto-estimate: 10 GB base + ${venueCount} venue${venueCount!==1?'s':''} × 5 GB + ${usersTotal} user${usersTotal!==1?'s':''} × 0.5 GB = ${dbAutoEstimate.toFixed(1)} GB. Enter actual DB size above for an existing client.`
+      : `Using entered value of ${dbEnteredRaw} GB.`;
+  }
+
   // ── UPDATE HARDWARE ──
   document.getElementById('spec-ram-val').textContent  = ramFinal + 'GB';
   document.getElementById('spec-cpu-val').textContent  = coreFinal;
+  document.getElementById('spec-storage-val').textContent = storageLabel;
   document.getElementById('spec-ram-sub').textContent  = `raw calc: ${ramRaw.toFixed(1)}GB`;
   document.getElementById('spec-cpu-sub').textContent  = `raw calc: ${coreRaw.toFixed(1)}`;
 
@@ -1093,6 +1149,21 @@ function renderSpec() {
     hwWarn.style.display = 'block';
     hwWarn.innerHTML = `<strong>Large deployment.</strong> This spec (${ramFinal}GB RAM, ${coreFinal} cores) is a substantial server. Consider recommending the client discuss hardware sizing with their IT team or a server vendor. Also confirm whether virtualisation is in scope — Hyper-V on Windows Server Standard covers 2 VMs.`;
   } else { hwWarn.style.display = 'none'; }
+
+  // ── UPDATE STORAGE ──
+  const storageTbody = document.getElementById('spec-storage-tbody');
+  if (storageTbody) {
+    const fmt = n => n % 1 === 0 ? n : n.toFixed(1);
+    storageTbody.innerHTML = `
+      <tr><td><strong>OS + SQL Server + Bepoz app</strong></td><td>Windows Server, SQL Server binaries, application files</td><td class="num">${storageFixed} GB</td></tr>
+      <tr><td><strong>Database${dbIsAuto ? ' (auto-estimated)' : ''}</strong></td><td>${dbIsAuto ? `10 GB base + ${venueCount} venue${venueCount!==1?'s':''} × 5 GB + ${usersTotal} user${usersTotal!==1?'s':''} × 0.5 GB` : `Entered: ${dbEnteredRaw} GB`}</td><td class="num">${fmt(dbSize)} GB</td></tr>
+      <tr><td><strong>Upgrade headroom (2.5× DB)</strong></td><td>Required free space during Bepoz version upgrade</td><td class="num">${fmt(dbUpgrade)} GB</td></tr>
+      <tr><td><strong>SQL transaction log buffer (0.25× DB)</strong></td><td>Log file growth headroom</td><td class="num">${fmt(dbLog)} GB</td></tr>
+      <tr><td><strong>Raw total</strong></td><td></td><td class="num">${fmt(storageRaw)} GB</td></tr>`;
+    document.getElementById('spec-storage-total').textContent = storageLabel;
+    document.getElementById('spec-storage-note').textContent =
+      `${fmt(storageRaw)} GB raw → rounded up to next standard size: ${storageLabel}.${dbIsAuto ? ' DB size is auto-estimated — enter actual DB size in the inputs above for a more accurate result.' : ''}`;
+  }
 
   // ── UPDATE SQL ──
   document.getElementById('spec-sql-tbody').innerHTML = `
@@ -1166,8 +1237,7 @@ function renderSpec() {
   const sg = id => document.getElementById(id);
   if (sg('sum-spec-ram')) sg('sum-spec-ram').textContent = ramFinal + 'GB';
   if (sg('sum-spec-cpu')) sg('sum-spec-cpu').textContent = coreFinal;
-  // Storage guidance: 256GB min, bump to 512GB for larger deployments
-  if (sg('sum-spec-storage')) sg('sum-spec-storage').textContent = (ramFinal >= 32 || venueCount >= 10) ? '512GB' : '256GB';
+  if (sg('sum-spec-storage')) sg('sum-spec-storage').textContent = storageLabel;
   if (sg('sum-spec-tbody')) {
     const tsplusLine = tsplusRec
       ? `Oolio Bepoz Cloud ${tsplusRec.name} — ${tsplusRec.conc === 999 ? 'unlimited' : 'up to ' + tsplusRec.conc} concurrent users`
@@ -1195,6 +1265,7 @@ function clearAll() {
   // Reset spec inputs to defaults
   document.getElementById('spec-users-total').value = 1;
   document.getElementById('spec-users-concurrent').value = 1;
+  document.getElementById('spec-db-size').value = 0;
   document.getElementById('concurrency-pct').value = 65;
   const cloudCb = document.getElementById('spec-cloud');
   if (cloudCb) { cloudCb.checked = false; cloudCb._synced = false; }
@@ -1216,7 +1287,8 @@ function getState() {
     hoPos: gv('ho-pos'), hoBo: gv('ho-bo'), hoPde: gv('ho-pde'), hoRem: gv('ho-remote'),
     hoRType: gr('ho-rtype'), concPct: gv('concurrency-pct') || 65,
     sTotal: gv('spec-users-total'), sConc: gv('spec-users-concurrent'),
-    sVenues: gv('spec-venues'), cloud: document.getElementById('spec-cloud')?.checked || false,
+    sVenues: gv('spec-venues'), sDbSize: gv('spec-db-size'),
+    cloud: document.getElementById('spec-cloud')?.checked || false,
     venues: venues.map(v => ({ id: v.id, name: v.name, ws: gv('vws-' + v.id), wstype: gr('vwstype-' + v.id) }))
   };
 }
@@ -1247,6 +1319,7 @@ function applyState(d) {
   sv('concurrency-pct', d.concPct || 65);
   sv('spec-users-total', d.sTotal || 1);
   sv('spec-users-concurrent', d.sConc || 1);
+  sv('spec-db-size', d.sDbSize || 0);
   sv('spec-venues', d.sVenues || 0);
   const cloudCb = document.getElementById('spec-cloud');
   if (cloudCb && d.cloud !== undefined) { cloudCb.checked = d.cloud; cloudCb._synced = true; }
