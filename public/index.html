@@ -45,7 +45,8 @@ header h1 em{font-style:normal;opacity:0.6;font-weight:400}
 header p{font-size:13px;color:rgba(255,255,255,0.65);max-width:480px;margin-bottom:22px}
 
 /* ── TABS ── */
-.tab-bar{display:flex;border-top:1px solid rgba(255,255,255,0.15);position:relative;z-index:1}
+.tab-bar{border-top:1px solid rgba(255,255,255,0.15);position:relative;z-index:1}
+.tab-bar-inner{max-width:860px;margin:0 auto;padding:0 32px;display:flex}
 .tab-btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:12px 20px;border:none;background:none;color:rgba(255,255,255,0.5);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.15s;white-space:nowrap}
 .tab-btn:hover{color:rgba(255,255,255,0.85)}
 .tab-btn.active{color:#fff;border-bottom-color:#fff}
@@ -204,6 +205,11 @@ strong{color:var(--ink);font-weight:600}
 .copy-btn:hover{background:rgba(255,255,255,0.25)}
 .copy-btn.copied{background:rgba(255,255,255,0.25)}
 
+/* ── SAVED INDICATOR ── */
+.saved-dot{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.4);opacity:0;transition:opacity 0.4s;margin-left:10px;font-weight:500}
+.saved-dot::before{content:'';width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.5);display:block}
+.saved-dot.show{opacity:1}
+
 /* ── TOAST ── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;z-index:999}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -221,10 +227,14 @@ strong{color:var(--ink);font-weight:600}
   .sum-doc{border:none;box-shadow:none}
   .sum-hdr,.sum-total-bar,.sum-tbl th,.sum-spec-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .wrap{padding:0}
+  .sum-tbl tr{page-break-inside:avoid}
+  .sum-sec{page-break-inside:avoid}
+  .sum-hdr{page-break-after:avoid}
 }
 @media(max-width:600px){
   .wrap{padding:20px 16px 60px}
   .hdr{padding:0 16px}
+  .tab-bar-inner{padding:0 16px}
   .sum-body,.sum-hdr{padding:20px}
   .sum-foot{padding:12px 20px}
 }
@@ -239,16 +249,18 @@ strong{color:var(--ink);font-weight:600}
         <svg width="74" height="19" viewBox="0 0 926 242" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M805,342 C871.826455,342 926,396.173545 926,463 C926,529.826455 871.826455,584 805,584 C738.173545,584 684,529.826455 684,463 C684,396.173545 738.173545,342 805,342 Z M805,423 C782.90861,423 765,440.90861 765,463 C765,485.09139 782.90861,503 805,503 C827.09139,503 845,485.09139 845,463 C845,440.90861 827.09139,423 805,423 Z M604,342 L664,342 C669.522847,342 674,346.477153 674,352 L674,574 C674,579.522847 669.522847,584 664,584 L604,584 C598.477153,584 594,579.522847 594,574 L594,352 C594,346.477153 598.477153,342 604,342 Z M424,584 C418.477153,584 414,579.522847 414,574 L414,352 C414,346.477153 418.477153,342 424,342 L484,342 C489.522847,342 494,346.477153 494,352 L494,504 L574,504 C579.522847,504 584,508.477153 584,514 L584,574 C584,579.522847 579.522847,584 574,584 L424,584 Z M283,342 C349.826455,342 404,396.173545 404,463 C404,529.826455 349.826455,584 283,584 C251.847179,584 223.444076,572.227053 201.997096,552.887563 C180.555042,572.227418 152.152338,584 121,584 C54.1735453,584 0,529.826455 0,463 C0,396.173545 54.1735453,342 121,342 C152.152821,342 180.555924,353.772947 202.002904,373.112437 C223.444958,353.772582 251.847662,342 283,342 Z M283,423 C260.90861,423 243,440.90861 243,463 C243,485.09139 260.90861,503 283,503 C305.09139,503 323,485.09139 323,463 C323,440.90861 305.09139,423 283,423 Z M121,423 C98.90861,423 81,440.90861 81,463 C81,485.09139 98.90861,503 121,503 C143.09139,503 161,485.09139 161,463 C161,440.90861 143.09139,423 121,423 Z" transform="translate(0,-342)"/></svg>
       </div>
       <div class="hdr-sep"></div>
-      <div class="hdr-prod">Bepoz · HO Deployment Planner</div>
+      <div class="hdr-prod">Bepoz · HO Deployment Planner<span class="saved-dot" id="saved-dot">Saved</span></div>
     </div>
     <h1>Head Office <em>Deployment Planner</em></h1>
     <p>Calculate CAL requirements, size the HO server, and generate a customer-ready summary.</p>
   </div>
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="showTab('calculator')">Calculator</button>
-    <button class="tab-btn" onclick="showTab('serverspec')">Server Spec</button>
-    <button class="tab-btn" onclick="showTab('explainer')">What is a CAL?</button>
-    <button class="tab-btn" onclick="showTab('summary')">Client Summary</button>
+    <div class="tab-bar-inner">
+      <button class="tab-btn active" onclick="showTab('calculator')">Calculator</button>
+      <button class="tab-btn" onclick="showTab('serverspec')">Server Spec</button>
+      <button class="tab-btn" onclick="showTab('explainer')">What is a CAL?</button>
+      <button class="tab-btn" onclick="showTab('summary')">Client Summary</button>
+    </div>
   </div>
 </header>
 
@@ -325,6 +337,20 @@ strong{color:var(--ink);font-weight:600}
   </section>
 
   <section>
+    <div class="sec-label">Server spec assumption</div>
+    <h2>Concurrency assumption</h2>
+    <div class="card" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div class="field" style="flex:0 0 auto;min-width:120px">
+        <label>Peak concurrent %</label>
+        <input type="number" id="concurrency-pct" min="10" max="100" value="65" oninput="render()">
+      </div>
+      <div style="font-size:13px;color:var(--ink3);flex:1;min-width:200px;line-height:1.6">
+        Used to estimate peak simultaneous logins for server sizing. <strong>65%</strong> suits most hospitality groups. Raise to <strong>100%</strong> for 24-hour venues; lower to <strong>40%</strong> for back-office-heavy setups.
+      </div>
+    </div>
+  </section>
+
+  <section>
     <div class="sec-label">Result</div>
     <h2>CAL total</h2>
     <div class="total-box">
@@ -344,7 +370,11 @@ strong{color:var(--ink);font-weight:600}
         <tfoot><tr><td colspan="3"><strong>Total</strong></td><td class="num" id="bd-total">0</td></tr></tfoot>
       </table>
     </div>
-    <div style="margin-top:18px;display:flex;justify-content:flex-end">
+    <div style="margin-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <button class="btn btn-out" onclick="clearAll()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+        New calculation
+      </button>
       <button class="btn btn-pri" onclick="showTab('summary')">
         Generate client summary
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -549,6 +579,10 @@ strong{color:var(--ink);font-weight:600}
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
       Back to calculator
     </button>
+    <button class="btn btn-out" onclick="copyAsText()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy as text
+    </button>
     <button class="btn btn-out" onclick="shareURL()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
       Share link
@@ -615,14 +649,21 @@ strong{color:var(--ink);font-weight:600}
 
       <div class="sum-sec">
         <h2>Important notes</h2>
-        <p style="font-size:13px;color:var(--ink2)">This assessment is based on information provided at time of scoping. Changes to venue count, device quantities, or user numbers will affect the final CAL requirement. Please confirm all figures with your Bepoz onboarding contact before finalising your order.</p>
-        <p style="font-size:13px;color:var(--ink2);margin-top:6px">This document does not constitute a formal quote. Final pricing is subject to commercial agreement with Oolio Group.</p>
+        <p style="font-size:13px;color:var(--ink2)">This assessment is based on information provided at time of scoping. Changes to venue count, device quantities, or user numbers will affect the final CAL requirement. Confirm all figures with your Bepoz onboarding contact before finalising your order.</p>
+        <p style="font-size:13px;color:var(--ink2);margin-top:6px">The server specification is a <strong>minimum baseline</strong> — always recommend the next tier up for production workloads. Your IT team should validate the final spec against your infrastructure environment.</p>
+        <p style="font-size:13px;color:var(--ink2);margin-top:6px">This document does not constitute a formal quote. Final pricing is subject to commercial agreement with Oolio Group. CAL licences are perpetual; support and maintenance are covered under your Bepoz agreement.</p>
       </div>
     </div>
 
     <div class="sum-foot">
-      <span>Oolio Group · Bepoz NSW</span>
-      <span id="sum-foot-date"></span>
+      <div>
+        <div style="font-weight:600;margin-bottom:2px">Oolio Group · Bepoz NSW</div>
+        <div><a href="https://bepoz.com.au" style="color:var(--ink3);text-decoration:none">bepoz.com.au</a> · <a href="mailto:sales@oolio.com.au" style="color:var(--ink3);text-decoration:none">sales@oolio.com.au</a></div>
+      </div>
+      <div style="text-align:right">
+        <div id="sum-ref" style="font-weight:600;margin-bottom:2px"></div>
+        <div id="sum-foot-date"></div>
+      </div>
     </div>
   </div>
 
@@ -665,7 +706,7 @@ function addVenue(silent) {
           <label class="radio-opt"><input type="radio" name="vwstype-${id}" value="device" onchange="render()"> Device CALs <span class="radio-sub">— 1 per device</span></label>
         </div>
       </div>
-      <div class="venue-note">SmartPOS Mobile and Kiosk at this venue do <strong>not</strong> require a CAL.</div>
+      <div class="venue-note">SmartPOS Mobile and Kiosk at this venue do <strong>not</strong> require a CAL. If workstations &gt; 0, a <strong>User or Device CAL</strong> option will appear above — User CAL is recommended for most setups.</div>
     </div>`;
   list.appendChild(div);
 
@@ -757,6 +798,10 @@ function render() {
   g('sum-date-el').textContent  = `Date: ${date||'—'}`;
   g('sum-total').textContent    = total;
   g('sum-foot-date').textContent = date || '';
+  // Quote reference: BEP-YYYYMMDD-{client initials or hash}
+  const refDate = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const refSuffix = cn ? cn.replace(/[^a-zA-Z0-9]/g,'').toUpperCase().slice(0,4) : 'XXXX';
+  g('sum-ref').textContent = `Ref: BEP-${refDate}-${refSuffix}`;
   g('sum-remote-note').textContent = hoRem > 0
     ? `Remote access licences in this assessment use ${hoRType==='device'?'Device CALs (one licence per connecting device)':'User CALs (one licence per named user, regardless of how many devices they connect from)'}. Contact your Bepoz representative to change the licence type.`
     : '';
@@ -790,7 +835,8 @@ function syncAndRenderSpec() {
   const vCount  = venues.length;
   const totalWs = gv('ho-bo') + venues.reduce((s,v)=>s+gv('vws-'+v.id),0);
   const named   = Math.max(totalWs, hoRem, 1);
-  const conc    = Math.max(Math.ceil(named * 0.65), hoRem, 1);
+  const pct     = Math.min(100, Math.max(10, gv('concurrency-pct') || 65)) / 100;
+  const conc    = Math.max(Math.ceil(named * pct), hoRem, 1);
   // Only auto-fill if still at defaults
   if (gv('spec-users-total') <= 1)      document.getElementById('spec-users-total').value = named;
   if (gv('spec-users-concurrent') <= 1) document.getElementById('spec-users-concurrent').value = conc;
@@ -833,9 +879,7 @@ function renderSpec() {
   const sqlPacks    = Math.ceil(sqlCores / 2);
 
   // ── Windows Server licensing ──
-  // Minimum 8 cores per CPU, 16 per server, 2-core packs
-  const wsCorePacks = Math.max(8, Math.ceil(coreFinal / 2) * 2); // min 16 cores worth of packs for a single CPU server → actually min 8 core packs = 16 core licences
-  const wsPackCount = Math.max(8, Math.ceil(coreFinal / 2)); // 2-core packs, min 8 packs (=16 cores)
+  // Sold in 2-core packs, minimum 8 packs (= 16 core licences) per server
 
   // ── UPDATE HARDWARE ──
   document.getElementById('spec-ram-val').textContent  = ramFinal + 'GB';
@@ -952,12 +996,40 @@ function renderSpec() {
   }
 }
 
+// ── CLEAR ──
+function clearAll() {
+  if (!confirm('Start a new calculation? All current data will be cleared.')) return;
+  // Clear venues
+  venues = [];
+  venueCounter = 0;
+  document.getElementById('venues-list').innerHTML = '';
+  // Reset text + number inputs
+  ['client-name','bdm-name','ho-pos','ho-bo','ho-pde','ho-remote',
+   'spec-users-total','spec-users-concurrent','spec-venues','spec-tsplus','concurrency-pct'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.type === 'number' ? 0 : '';
+  });
+  // Reset spec inputs to defaults
+  document.getElementById('spec-users-total').value = 1;
+  document.getElementById('spec-users-concurrent').value = 1;
+  document.getElementById('concurrency-pct').value = 65;
+  // Reset radios
+  document.querySelector('input[name="ho-rtype"][value="user"]').checked = true;
+  // Reset date to today
+  document.getElementById('doc-date').value = new Date().toLocaleDateString('en-AU',{year:'numeric',month:'long',day:'numeric'});
+  // Clear localStorage
+  try { localStorage.removeItem('bepoz-cal'); } catch(e) {}
+  // Clear URL hash
+  history.replaceState(null, '', location.pathname);
+  render();
+}
+
 // ── STATE PERSISTENCE ──
 function getState() {
   return {
     cn: gs('client-name'), bdm: gs('bdm-name'), date: gs('doc-date'),
     hoPos: gv('ho-pos'), hoBo: gv('ho-bo'), hoPde: gv('ho-pde'), hoRem: gv('ho-remote'),
-    hoRType: gr('ho-rtype'),
+    hoRType: gr('ho-rtype'), concPct: gv('concurrency-pct') || 65,
     sTotal: gv('spec-users-total'), sConc: gv('spec-users-concurrent'),
     sVenues: gv('spec-venues'), sTsplus: gv('spec-tsplus'),
     venues: venues.map(v => ({ id: v.id, name: v.name, ws: gv('vws-' + v.id), wstype: gr('vwstype-' + v.id) }))
@@ -965,7 +1037,15 @@ function getState() {
 }
 
 function saveState() {
-  try { localStorage.setItem('bepoz-cal', JSON.stringify(getState())); } catch(e) {}
+  try {
+    localStorage.setItem('bepoz-cal', JSON.stringify(getState()));
+    const dot = document.getElementById('saved-dot');
+    if (dot) {
+      dot.classList.add('show');
+      clearTimeout(dot._t);
+      dot._t = setTimeout(() => dot.classList.remove('show'), 1800);
+    }
+  } catch(e) {}
 }
 
 function applyState(d) {
@@ -979,6 +1059,7 @@ function applyState(d) {
   sv('ho-pde', d.hoPde || 0);
   sv('ho-remote', d.hoRem || 0);
   if (d.hoRType) sr('ho-rtype', d.hoRType);
+  sv('concurrency-pct', d.concPct || 65);
   sv('spec-users-total', d.sTotal || 1);
   sv('spec-users-concurrent', d.sConc || 1);
   sv('spec-venues', d.sVenues || 0);
@@ -1022,13 +1103,37 @@ function shareURL() {
     .catch(() => prompt('Copy this link:', url));
 }
 
+function copyAsText() {
+  const { lines, total } = calcAll();
+  const cn   = gs('client-name') || '—';
+  const bdm  = gs('bdm-name')    || '—';
+  const date = gs('doc-date')    || '—';
+  const rows = lines.map(l => `  • ${l.label} (${l.type}): ${l.cals} CAL${l.cals !== 1 ? 's' : ''}`).join('\n');
+  const text = [
+    `CAL Requirements — ${cn}`,
+    `Prepared by: ${bdm}   Date: ${date}`,
+    '',
+    `Total CALs: ${total}`,
+    '',
+    rows,
+    '',
+    'All CALs held at Head Office. This is not a formal quote.'
+  ].join('\n');
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('Summary copied to clipboard'))
+    .catch(() => prompt('Copy this text:', text));
+}
+
 function copyTotal() {
   const total = document.getElementById('total-num').textContent;
   const btn = document.getElementById('copy-total-btn');
-  navigator.clipboard.writeText(total).then(() => {
+  const flash = () => {
     btn.textContent = 'Copied!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  };
+  navigator.clipboard.writeText(total).then(flash).catch(() => {
+    prompt('Total CALs:', total);
   });
 }
 
