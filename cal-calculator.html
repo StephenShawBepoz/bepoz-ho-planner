@@ -266,6 +266,17 @@ strong{color:var(--ink);font-weight:600}
   .sum-hdr{page-break-after:avoid}
   .sum-foot{padding:10px 28px}
 }
+/* ── STEP BADGES ── */
+.step-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.step-badge{width:20px;height:20px;border-radius:50%;background:var(--purple);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:0}
+.step-row .sec-label{margin-bottom:0}
+
+/* ── SHOW WORKING TOGGLE ── */
+.show-working-btn{background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--ink3);letter-spacing:0.06em;text-transform:uppercase;padding:0;display:flex;align-items:center;gap:5px;transition:color 0.15s}
+.show-working-btn:hover{color:var(--purple)}
+.working-detail{display:none}
+.working-detail.open{display:block}
+
 /* ── VALIDATION BANNER ── */
 .validation-banner{background:var(--warn-l);border:1.5px solid #f0c878;border-radius:var(--r);padding:11px 17px;font-size:13px;color:var(--warn);line-height:1.6;margin-bottom:14px;display:none}
 .validation-banner strong{color:var(--warn)}
@@ -327,9 +338,9 @@ strong{color:var(--ink);font-weight:600}
   <div class="tab-bar">
     <div class="tab-bar-inner">
       <button class="tab-btn active" onclick="showTab('calculator')">Calculator</button>
+      <button class="tab-btn" onclick="showTab('summary')">Client Summary</button>
       <button class="tab-btn" onclick="showTab('serverspec')">Server Spec</button>
       <button class="tab-btn" onclick="showTab('explainer')">What is a CAL?</button>
-      <button class="tab-btn" onclick="showTab('summary')">Client Summary</button>
     </div>
   </div>
 </header>
@@ -339,7 +350,7 @@ strong{color:var(--ink);font-weight:600}
 <div class="wrap">
 
   <section>
-    <div class="sec-label">Client details</div>
+    <div class="step-row"><div class="step-badge">1</div><div class="sec-label">Client details</div></div>
     <div class="card" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
       <div class="field" style="flex:2;min-width:170px">
         <label>Client / group name</label>
@@ -357,7 +368,7 @@ strong{color:var(--ink);font-weight:600}
   </section>
 
   <section>
-    <div class="sec-label">Head Office</div>
+    <div class="step-row"><div class="step-badge">2</div><div class="sec-label">Head Office</div></div>
     <h2>Head Office licences</h2>
     <p style="margin-bottom:14px">All CALs are issued at Head Office. This covers HO's own devices, remote venue VPN connections, PDEs, and remote users. If HO is also a trading venue, include its POS terminals here.</p>
     <div class="ho-block">
@@ -387,16 +398,19 @@ strong{color:var(--ink);font-weight:600}
           <input type="number" id="ho-remote" min="0" value="0" oninput="render()">
         </div>
       </div>
-      <div class="radio-row">
-        <label class="radio-opt"><input type="radio" name="ho-rtype" value="user" checked onchange="render()"> User CALs <span class="radio-sub">— 1 per person</span></label>
-        <label class="radio-opt"><input type="radio" name="ho-rtype" value="device" onchange="render()"> Device CALs <span class="radio-sub">— 1 per device</span></label>
+      <div id="ho-rtype-wrap" style="display:none">
+        <div class="field-section-label" style="margin-bottom:6px;color:var(--ink3)">Remote user CAL type</div>
+        <div class="radio-row">
+          <label class="radio-opt"><input type="radio" name="ho-rtype" value="user" checked onchange="render()"> User CALs <span class="radio-sub">— 1 per person</span></label>
+          <label class="radio-opt"><input type="radio" name="ho-rtype" value="device" onchange="render()"> Device CALs <span class="radio-sub">— 1 per device</span></label>
+        </div>
       </div>
       <div class="block-note">Only include HO POS terminals if HO is also a trading venue. SmartPOS Mobile and Kiosk do <strong>not</strong> require a CAL.</div>
     </div>
   </section>
 
   <section>
-    <div class="sec-label">Remote venues</div>
+    <div class="step-row"><div class="step-badge">3</div><div class="sec-label">Remote venues</div></div>
     <h2>Remote venues</h2>
     <p style="margin-bottom:14px">Each venue has exactly one SmartController connecting to HO via VPN — this is always <strong>1 CAL per venue</strong>. If a venue also has local back-office workstations accessing Bepoz, add those below.</p>
     <div id="venues-list"></div>
@@ -407,21 +421,7 @@ strong{color:var(--ink);font-weight:600}
   </section>
 
   <section>
-    <div class="sec-label">Server spec assumption</div>
-    <h2>Concurrency assumption</h2>
-    <div class="card" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <div class="field" style="flex:0 0 auto;min-width:120px">
-        <label>Peak concurrent %</label>
-        <input type="number" id="concurrency-pct" min="10" max="100" value="65" oninput="render()">
-      </div>
-      <div style="font-size:13px;color:var(--ink3);flex:1;min-width:200px;line-height:1.6">
-        Used to estimate peak simultaneous logins for server sizing. <strong>65%</strong> suits most hospitality groups. Raise to <strong>100%</strong> for 24-hour venues; lower to <strong>40%</strong> for back-office-heavy setups.
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="sec-label">Result</div>
+    <div class="step-row"><div class="step-badge">4</div><div class="sec-label">Result</div></div>
     <h2>CAL total</h2>
     <div class="total-box">
       <div>
@@ -499,6 +499,10 @@ strong{color:var(--ink);font-weight:600}
           <input type="number" id="spec-venues" min="0" value="0" oninput="renderSpec()">
         </div>
         <div class="field">
+          <label>Peak concurrency %</label>
+          <input type="number" id="concurrency-pct" min="10" max="100" value="65" oninput="syncAndRenderSpec();saveState()">
+        </div>
+        <div class="field">
           <label>Oolio Bepoz Cloud</label>
           <label class="radio-opt" style="margin-top:4px;cursor:pointer">
             <input type="checkbox" id="spec-cloud" onchange="renderSpec()" style="accent-color:var(--purple);width:13px;height:13px"> Enabled
@@ -506,7 +510,7 @@ strong{color:var(--ink);font-weight:600}
           <div style="font-size:11px;color:var(--ink3);margin-top:5px" id="spec-cloud-note"></div>
         </div>
       </div>
-      <div style="font-size:12px;color:var(--ink3)">These values are pre-filled from the Calculator tab. Concurrent users should reflect peak simultaneous logins — typically 60–70% of total named users for a busy site.</div>
+      <div style="font-size:12px;color:var(--ink3)">Pre-filled from Calculator tab. <strong>Concurrency %</strong> is peak simultaneous logins — 65% suits most groups; raise to 100% for 24/7 venues, lower to 40% for back-office-heavy setups.</div>
       <div style="border-top:1px solid var(--rule);margin-top:14px;padding-top:14px">
         <div class="field-section-label" style="margin-bottom:10px">Database size</div>
         <div style="display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:start">
@@ -536,18 +540,24 @@ strong{color:var(--ink);font-weight:600}
       </div>
     </div>
     <div id="spec-hw-warning" class="warning-box" style="display:none"></div>
-    <div class="spec-table-wrap">
-      <div class="spec-breakdown-title">How we got there</div>
-      <table class="tbl" id="spec-hw-table">
-        <thead><tr><th>Component</th><th>Reason</th><th style="text-align:right">RAM</th><th style="text-align:right">Cores</th></tr></thead>
-        <tbody id="spec-hw-tbody"></tbody>
-        <tfoot><tr>
-          <td colspan="2"><strong>Raw total</strong></td>
-          <td class="num" id="spec-ram-raw">—</td>
-          <td class="num" id="spec-cpu-raw">—</td>
-        </tr></tfoot>
-      </table>
-      <div class="spec-formula-note" id="spec-formula-note"></div>
+    <button class="show-working-btn" onclick="toggleWorking('hw-working',this)" style="margin-bottom:8px">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="hw-working-icon"><polyline points="6 9 12 15 18 9"/></svg>
+      Show working
+    </button>
+    <div class="working-detail" id="hw-working">
+      <div class="spec-table-wrap">
+        <div class="spec-breakdown-title">How we got there</div>
+        <table class="tbl" id="spec-hw-table">
+          <thead><tr><th>Component</th><th>Reason</th><th style="text-align:right">RAM</th><th style="text-align:right">Cores</th></tr></thead>
+          <tbody id="spec-hw-tbody"></tbody>
+          <tfoot><tr>
+            <td colspan="2"><strong>Raw total</strong></td>
+            <td class="num" id="spec-ram-raw">—</td>
+            <td class="num" id="spec-cpu-raw">—</td>
+          </tr></tfoot>
+        </table>
+        <div class="spec-formula-note" id="spec-formula-note"></div>
+      </div>
     </div>
   </section>
 
@@ -556,17 +566,23 @@ strong{color:var(--ink);font-weight:600}
     <div class="sec-label">Storage recommendation</div>
     <h2>SSD sizing</h2>
     <p style="margin-bottom:14px">Storage is sized to cover the OS, application, database, and — critically — the space needed during a Bepoz version upgrade, which requires <strong>2.5× the current database size</strong> as free working space.</p>
-    <div class="spec-table-wrap" style="margin-bottom:14px">
-      <div class="spec-breakdown-title">Storage breakdown</div>
-      <table class="tbl">
-        <thead><tr><th>Component</th><th>Notes</th><th style="text-align:right">GB</th></tr></thead>
-        <tbody id="spec-storage-tbody"></tbody>
-        <tfoot><tr>
-          <td colspan="2"><strong>Minimum recommended</strong></td>
-          <td class="num" id="spec-storage-total">—</td>
-        </tr></tfoot>
-      </table>
-      <div class="spec-formula-note" id="spec-storage-note"></div>
+    <button class="show-working-btn" onclick="toggleWorking('storage-working',this)" style="margin-bottom:8px">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      Show working
+    </button>
+    <div class="working-detail" id="storage-working">
+      <div class="spec-table-wrap" style="margin-bottom:14px">
+        <div class="spec-breakdown-title">Storage breakdown</div>
+        <table class="tbl">
+          <thead><tr><th>Component</th><th>Notes</th><th style="text-align:right">GB</th></tr></thead>
+          <tbody id="spec-storage-tbody"></tbody>
+          <tfoot><tr>
+            <td colspan="2"><strong>Minimum recommended</strong></td>
+            <td class="num" id="spec-storage-total">—</td>
+          </tr></tfoot>
+        </table>
+        <div class="spec-formula-note" id="spec-storage-note"></div>
+      </div>
     </div>
   </section>
 
@@ -699,25 +715,28 @@ strong{color:var(--ink);font-weight:600}
   </div>
 
   <div class="sum-actions">
-    <button class="btn btn-out" onclick="showTab('calculator')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      Back to calculator
-    </button>
-    <button class="btn btn-out" onclick="copyAsText()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      Copy as text
-    </button>
-    <button class="btn btn-out" onclick="exportCSV()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Export CSV
-    </button>
-    <button class="btn btn-out" onclick="shareURL()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      Share link
-    </button>
-    <button class="btn btn-pri" onclick="printSummary()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-      Print / Save as PDF
+    <div style="display:flex;align-items:center;gap:12px;flex:1;flex-wrap:wrap">
+      <button class="btn btn-pri" onclick="printSummary()" style="font-size:14px;padding:10px 22px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / Save as PDF
+      </button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-out" onclick="copyAsText()" title="Copy summary as plain text">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+        <button class="btn btn-out" onclick="exportCSV()" title="Download as CSV">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          CSV
+        </button>
+        <button class="btn btn-out" onclick="shareURL()" title="Copy shareable link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
+        </button>
+      </div>
+    </div>
+    <button class="btn btn-out" onclick="showTab('calculator')" style="color:var(--ink3);font-size:12px">
+      ← Calculator
     </button>
   </div>
 
@@ -925,6 +944,10 @@ function calcAll() {
 function render() {
   const { lines, total, hoRem, hoRType } = calcAll();
 
+  // show/hide HO remote CAL type
+  const hoRtypeWrap = document.getElementById('ho-rtype-wrap');
+  if (hoRtypeWrap) hoRtypeWrap.style.display = hoRem > 0 ? 'block' : 'none';
+
   // venue pills
   venues.forEach((v, i) => {
     const ws = gv('vws-' + v.id);
@@ -1027,7 +1050,7 @@ function showTab(name) {
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('pane-'+name).classList.add('active');
-  const idx = {calculator:0,serverspec:1,explainer:2,summary:3};
+  const idx = {calculator:0,summary:1,serverspec:2,explainer:3};
   document.querySelectorAll('.tab-btn')[idx[name]]?.classList.add('active');
   if (name==='summary') { syncAndRenderSpec(); render(); }
   if (name==='serverspec') syncAndRenderSpec();
@@ -1411,6 +1434,16 @@ function printSummary() {
     render();
   }
   window.print();
+}
+
+// ── SHOW WORKING TOGGLE ──
+function toggleWorking(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const open = el.classList.toggle('open');
+  const svg = btn.querySelector('svg');
+  btn.childNodes[btn.childNodes.length - 1].textContent = open ? ' Hide working' : ' Show working';
+  if (svg) svg.style.transform = open ? 'rotate(180deg)' : '';
 }
 
 // ── VERSION ──
