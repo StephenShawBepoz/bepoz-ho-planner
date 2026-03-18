@@ -310,10 +310,10 @@ strong{color:var(--ink);font-weight:600}
         </div>
       </div>
       <div class="section-divider"></div>
-      <div class="field-section-label">Remote users (TSplus / RDP)</div>
+      <div class="field-section-label">Oolio Bepoz Cloud — remote access users</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:10px">
         <div class="field">
-          <label>Number of remote users</label>
+          <label>Bepoz Cloud users</label>
           <input type="number" id="ho-remote" min="0" value="0" oninput="render()">
         </div>
       </div>
@@ -392,8 +392,8 @@ strong{color:var(--ink);font-weight:600}
   <section>
     <div class="sec-label">About this tab</div>
     <h2>Head Office server specification</h2>
-    <p style="margin-bottom:10px">This tab uses the venue and user counts from the Calculator tab to recommend a minimum server spec for the Head Office box. It covers hardware sizing, SQL Server licensing, Windows Server licensing, and TSplus licensing.</p>
-    <div class="info-box" style="margin-top:0">The HO server typically runs <strong>three workloads on one box</strong>: Bepoz application server, SQL Server Standard, and TSplus for remote users. All sizing below accounts for this combined load.</div>
+    <p style="margin-bottom:10px">This tab uses the venue and user counts from the Calculator tab to recommend a minimum server spec for the Head Office box. It covers hardware sizing, SQL Server licensing, Windows Server licensing, and Oolio Bepoz Cloud licensing.</p>
+    <div class="info-box" style="margin-top:0">The HO server typically runs <strong>three workloads on one box</strong>: Bepoz application server, SQL Server Standard, and Oolio Bepoz Cloud for remote users. All sizing below accounts for this combined load.</div>
   </section>
 
   <!-- OVERRIDE INPUTS -->
@@ -416,8 +416,11 @@ strong{color:var(--ink);font-weight:600}
           <input type="number" id="spec-venues" min="0" value="0" oninput="renderSpec()">
         </div>
         <div class="field">
-          <label>TSplus / RDP users</label>
-          <input type="number" id="spec-tsplus" min="0" value="0" oninput="renderSpec()">
+          <label>Oolio Bepoz Cloud</label>
+          <label class="radio-opt" style="margin-top:4px;cursor:pointer">
+            <input type="checkbox" id="spec-cloud" onchange="renderSpec()" style="accent-color:var(--purple);width:13px;height:13px"> Enabled
+          </label>
+          <div style="font-size:11px;color:var(--ink3);margin-top:5px" id="spec-cloud-note"></div>
         </div>
       </div>
       <div style="font-size:12px;color:var(--ink3)">These values are pre-filled from the Calculator tab. Concurrent users should reflect peak simultaneous logins — typically 60–70% of total named users for a busy site.</div>
@@ -492,8 +495,8 @@ strong{color:var(--ink);font-weight:600}
   <!-- TSPLUS -->
   <section>
     <div class="sec-label">Remote access licensing</div>
-    <h2>TSplus</h2>
-    <p style="margin-bottom:14px">TSplus is licensed per concurrent user. Pick the tier that covers peak simultaneous remote sessions — you can't exceed the licensed concurrent count.</p>
+    <h2>Oolio Bepoz Cloud</h2>
+    <p style="margin-bottom:14px">Oolio Bepoz Cloud is licensed per concurrent user. Pick the tier that covers peak simultaneous remote sessions — you can't exceed the licensed concurrent count.</p>
     <div id="spec-tsplus-result"></div>
   </section>
 
@@ -559,7 +562,7 @@ strong{color:var(--ink);font-weight:600}
           <tr><td><strong>HO back-office workstations</strong></td><td><span style="color:var(--green);font-weight:700">Yes — 1 per PC</span></td><td>Any PC running Bepoz Manager at HO</td></tr>
           <tr><td><strong>Venue back-office workstations</strong></td><td><span style="color:var(--green);font-weight:700">Yes — User or Device CAL</span></td><td>Add per venue in the calculator</td></tr>
           <tr><td><strong>PDE devices</strong></td><td><span style="color:var(--green);font-weight:700">Yes — 1 per device</span></td><td>Price Display Equipment, licenced at HO</td></tr>
-          <tr><td><strong>Remote users (TSplus / RDP)</strong></td><td><span style="color:var(--green);font-weight:700">Yes — User or Device CAL</span></td><td>User CAL recommended for most setups</td></tr>
+          <tr><td><strong>Remote users (Oolio Bepoz Cloud)</strong></td><td><span style="color:var(--green);font-weight:700">Yes — User or Device CAL</span></td><td>User CAL recommended for most setups</td></tr>
           <tr><td><strong>SmartPOS Mobile</strong></td><td><span style="color:var(--ink3);font-weight:700">No</span></td><td>Does not require a CAL</td></tr>
           <tr><td><strong>Kiosk</strong></td><td><span style="color:var(--ink3);font-weight:700">No</span></td><td>Does not require a CAL</td></tr>
         </tbody>
@@ -747,7 +750,7 @@ function calcAll() {
   if (hoPos > 0)  lines.push({ label:'POS terminals at HO', type:'Device CAL', where:'Head Office', cals:hoPos });
   if (hoBo > 0)   lines.push({ label:'Back-office workstations (HO)', type:'Device CAL', where:'Head Office', cals:hoBo });
   if (hoPde > 0)  lines.push({ label:'PDE devices', type:'Device CAL', where:'Head Office', cals:hoPde });
-  if (hoRem > 0)  lines.push({ label:'Remote users (TSplus / RDP)', type: hoRType==='device'?'Device CAL':'User CAL', where:'Head Office', cals:hoRem });
+  if (hoRem > 0)  lines.push({ label:'Remote users (Oolio Bepoz Cloud)', type: hoRType==='device'?'Device CAL':'User CAL', where:'Head Office', cals:hoRem });
 
   venues.forEach((v, i) => {
     const name = v.name || `Venue ${i + 1}`;
@@ -834,14 +837,17 @@ function syncAndRenderSpec() {
   const hoRem   = gv('ho-remote');
   const vCount  = venues.length;
   const totalWs = gv('ho-bo') + venues.reduce((s,v)=>s+gv('vws-'+v.id),0);
-  const named   = Math.max(totalWs, hoRem, 1);
+  // FIX: sum workstations + remote users (they are different people)
+  const named   = Math.max(totalWs + hoRem, 1);
   const pct     = Math.min(100, Math.max(10, gv('concurrency-pct') || 65)) / 100;
   const conc    = Math.max(Math.ceil(named * pct), hoRem, 1);
   // Only auto-fill if still at defaults
   if (gv('spec-users-total') <= 1)      document.getElementById('spec-users-total').value = named;
   if (gv('spec-users-concurrent') <= 1) document.getElementById('spec-users-concurrent').value = conc;
   if (gv('spec-venues') <= 0)           document.getElementById('spec-venues').value = vCount;
-  if (gv('spec-tsplus') <= 0)           document.getElementById('spec-tsplus').value = hoRem;
+  // Auto-enable cloud toggle if remote users > 0 (only on first visit)
+  const cloudCb = document.getElementById('spec-cloud');
+  if (cloudCb && !cloudCb._synced) { cloudCb.checked = hoRem > 0; cloudCb._synced = true; }
   renderSpec();
 }
 
@@ -849,7 +855,13 @@ function renderSpec() {
   const usersTotal  = Math.max(gv('spec-users-total'), 1);
   const usersCon    = Math.max(gv('spec-users-concurrent'), 1);
   const venueCount  = gv('spec-venues');
-  const tsplusUsers = gv('spec-tsplus');
+  const cloudEnabled = document.getElementById('spec-cloud')?.checked || false;
+  const tsplusUsers  = cloudEnabled ? gv('ho-remote') : 0;
+  // Update cloud note
+  const cloudNote = document.getElementById('spec-cloud-note');
+  if (cloudNote) cloudNote.textContent = cloudEnabled
+    ? `${tsplusUsers} user${tsplusUsers !== 1 ? 's' : ''} — synced from Calculator`
+    : 'Disabled — no remote access sizing';
 
   // ── RAM calculation ──
   const ramBase      = 8;    // OS + Bepoz app + SQL baseline
@@ -892,7 +904,7 @@ function renderSpec() {
     { c:`${usersCon} concurrent users × 0.5GB / 0.5 core`, r:'Back-office + HO sessions', ram:(usersCon*ramPerUser), cpu:(usersCon*corePerUser) },
     { c:`${venueCount} remote venues × 0.25GB / 0.25 core`, r:'SQL polling via SmartController', ram:(venueCount*ramPerVenue), cpu:(venueCount*corePerVenue) },
   ];
-  if (tsplusUsers > 0) hwRows.push({ c:`${tsplusUsers} TSplus users × 0.5GB / 0.25 core`, r:'Remote session overhead', ram:ramTsplus, cpu:coreTsplus });
+  if (tsplusUsers > 0) hwRows.push({ c:`${tsplusUsers} Bepoz Cloud users × 0.5GB / 0.25 core`, r:'Remote session overhead', ram:ramTsplus, cpu:coreTsplus });
 
   document.getElementById('spec-hw-tbody').innerHTML = hwRows.map(r=>`
     <tr>
@@ -954,11 +966,11 @@ function renderSpec() {
   // ── UPDATE TSPLUS ──
   const tsplusDiv = document.getElementById('spec-tsplus-result');
   if (tsplusUsers === 0) {
-    tsplusDiv.innerHTML = `<div class="card"><p style="color:var(--ink3);font-style:italic">No TSplus/RDP users entered in the Calculator tab. If remote access is needed, go back to the Calculator and add remote users — the spec will update automatically.</p></div>`;
+    tsplusDiv.innerHTML = `<div class="card"><p style="color:var(--ink3);font-style:italic">Oolio Bepoz Cloud is not enabled. If remote access is needed, enable it using the toggle above or add remote users in the Calculator tab.</p></div>`;
   } else {
     tsplusDiv.innerHTML = `
       <div class="spec-table-wrap" style="margin-bottom:14px">
-        <div class="spec-breakdown-title">TSplus tier recommendation</div>
+        <div class="spec-breakdown-title">Oolio Bepoz Cloud tier recommendation</div>
         <table class="tbl">
           <thead><tr><th>Tier</th><th>Concurrent users covered</th><th>Fits your ${tsplusUsers} user${tsplusUsers!==1?'s':''}?</th></tr></thead>
           <tbody>
@@ -975,9 +987,9 @@ function renderSpec() {
         </table>
       </div>
       <div class="info-box" style="margin-bottom:0">
-        <strong>Recommended: TSplus ${tsplusRec.name}</strong> — covers up to ${tsplusRec.conc === 999 ? 'unlimited' : tsplusRec.conc} concurrent users.
+        <strong>Recommended: Oolio Bepoz Cloud ${tsplusRec.name}</strong> — covers up to ${tsplusRec.conc === 999 ? 'unlimited' : tsplusRec.conc} concurrent users.
         ${nextUp ? `Consider <strong>${nextUp.name}</strong> if you expect growth beyond ${tsplusRec.conc} concurrent users.` : ''}
-        TSplus is licensed separately from Windows Server RDS CALs — confirm with your TSplus reseller whether RDS CALs are also required for your setup.
+        Oolio Bepoz Cloud is licensed separately from Windows Server RDS CALs — confirm with your Bepoz representative whether RDS CALs are also required.
       </div>`;
   }
 
@@ -987,12 +999,12 @@ function renderSpec() {
   if (sg('sum-spec-cpu')) sg('sum-spec-cpu').textContent = coreFinal;
   if (sg('sum-spec-tbody')) {
     const tsplusLine = tsplusRec
-      ? `TSplus ${tsplusRec.name} — up to ${tsplusRec.conc === 999 ? 'unlimited' : tsplusRec.conc} concurrent users`
-      : 'Not required (no remote users)';
+      ? `Oolio Bepoz Cloud ${tsplusRec.name} — up to ${tsplusRec.conc === 999 ? 'unlimited' : tsplusRec.conc} concurrent users`
+      : 'Not required (Bepoz Cloud not enabled)';
     sg('sum-spec-tbody').innerHTML = `
       <tr><td>SQL Server Standard</td><td>${sqlPacks} × 2-core packs (${sqlCores} cores, per-core licensing)</td></tr>
       <tr><td>Windows Server Standard</td><td>${wsPacksNeeded} × 2-core packs (minimum 8 packs per server)</td></tr>
-      <tr><td>TSplus</td><td>${tsplusLine}</td></tr>`;
+      <tr><td>Oolio Bepoz Cloud</td><td>${tsplusLine}</td></tr>`;
   }
 }
 
@@ -1005,7 +1017,7 @@ function clearAll() {
   document.getElementById('venues-list').innerHTML = '';
   // Reset text + number inputs
   ['client-name','bdm-name','ho-pos','ho-bo','ho-pde','ho-remote',
-   'spec-users-total','spec-users-concurrent','spec-venues','spec-tsplus','concurrency-pct'].forEach(id => {
+   'spec-users-total','spec-users-concurrent','spec-venues','concurrency-pct'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = el.type === 'number' ? 0 : '';
   });
@@ -1013,6 +1025,8 @@ function clearAll() {
   document.getElementById('spec-users-total').value = 1;
   document.getElementById('spec-users-concurrent').value = 1;
   document.getElementById('concurrency-pct').value = 65;
+  const cloudCb = document.getElementById('spec-cloud');
+  if (cloudCb) { cloudCb.checked = false; cloudCb._synced = false; }
   // Reset radios
   document.querySelector('input[name="ho-rtype"][value="user"]').checked = true;
   // Reset date to today
@@ -1031,7 +1045,7 @@ function getState() {
     hoPos: gv('ho-pos'), hoBo: gv('ho-bo'), hoPde: gv('ho-pde'), hoRem: gv('ho-remote'),
     hoRType: gr('ho-rtype'), concPct: gv('concurrency-pct') || 65,
     sTotal: gv('spec-users-total'), sConc: gv('spec-users-concurrent'),
-    sVenues: gv('spec-venues'), sTsplus: gv('spec-tsplus'),
+    sVenues: gv('spec-venues'), cloud: document.getElementById('spec-cloud')?.checked || false,
     venues: venues.map(v => ({ id: v.id, name: v.name, ws: gv('vws-' + v.id), wstype: gr('vwstype-' + v.id) }))
   };
 }
@@ -1063,7 +1077,8 @@ function applyState(d) {
   sv('spec-users-total', d.sTotal || 1);
   sv('spec-users-concurrent', d.sConc || 1);
   sv('spec-venues', d.sVenues || 0);
-  sv('spec-tsplus', d.sTsplus || 0);
+  const cloudCb = document.getElementById('spec-cloud');
+  if (cloudCb && d.cloud !== undefined) { cloudCb.checked = d.cloud; cloudCb._synced = true; }
   if (d.venues && d.venues.length) {
     d.venues.forEach(vd => {
       venueCounter = vd.id - 1;
