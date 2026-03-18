@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bepoz HO Deployment Planner · Oolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#673AB6;
+  --purple-d:#4a2a8a;
+  --purple-l:#f3effe;
+  --purple-m:#8b5fd4;
+  --purple-border:#d4bff5;
+  --blue:#4050B5;
+  --blue-l:#eaecf8;
+  --cyan:#03A9F4;
+  --grad1:linear-gradient(135deg,#673AB6 0%,#5E35B1 50%,#3023AE 100%);
+  --grad2:linear-gradient(135deg,#673AB6 0%,#03A9F4 100%);
+  --ink:#1a1625;
+  --ink2:#4a4560;
+  --ink3:#9490a8;
+  --rule:#e8e4f0;
+  --rule2:#cfc8e8;
+  --bg:#f7f5fc;
+  --card:#ffffff;
+  --green:#1a6b3c;--green-l:#e8f5ee;
+  --warn:#7c4a00;--warn-l:#fef3e2;
+  --r:10px;
+}
+html{font-size:16px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh}
+
+/* ── HEADER ── */
+header{background:var(--grad1);color:#fff;padding:32px 0 0;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(3,169,244,0.18) 0%,transparent 60%);pointer-events:none}
+.hdr{max-width:860px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+.hdr-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.oolio-mark{font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#fff;display:flex;align-items:center;gap:4px}
+.hdr-sep{width:1px;height:20px;background:rgba(255,255,255,0.3)}
+.hdr-prod{font-size:12px;font-weight:500;color:rgba(255,255,255,0.65);letter-spacing:0.02em}
+header h1{font-size:clamp(20px,3.5vw,28px);font-weight:700;line-height:1.25;margin-bottom:6px}
+header h1 em{font-style:normal;opacity:0.6;font-weight:400}
+header p{font-size:13px;color:rgba(255,255,255,0.65);max-width:480px;margin-bottom:22px}
+
+/* ── TABS ── */
+.tab-bar{display:flex;border-top:1px solid rgba(255,255,255,0.15);position:relative;z-index:1}
+.tab-btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:12px 20px;border:none;background:none;color:rgba(255,255,255,0.5);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.15s;white-space:nowrap}
+.tab-btn:hover{color:rgba(255,255,255,0.85)}
+.tab-btn.active{color:#fff;border-bottom-color:#fff}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* ── LAYOUT ── */
+.wrap{max-width:860px;margin:0 auto;padding:32px 32px 80px}
+section{margin-bottom:32px}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--purple);margin-bottom:9px}
+h2{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:13px;padding-bottom:9px;border-bottom:2px solid var(--rule)}
+p{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:10px}
+p:last-child{margin-bottom:0}
+strong{color:var(--ink);font-weight:600}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);padding:18px 22px;margin-bottom:12px;box-shadow:0 1px 4px rgba(103,58,182,0.05)}
+
+/* ── FORM ── */
+.field{display:flex;flex-direction:column;gap:4px}
+.field label,.field .flabel{font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:0.08em;text-transform:uppercase}
+.field input[type=number],.field input[type=text]{
+  background:var(--bg);border:1.5px solid var(--rule2);border-radius:7px;
+  padding:8px 11px;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);
+  outline:none;transition:border-color 0.15s,box-shadow 0.15s;width:100%;
+  -moz-appearance:textfield
+}
+.field input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+.field input:focus{border-color:var(--purple);background:var(--card);box-shadow:0 0 0 3px rgba(103,58,182,0.1)}
+
+/* ── RADIO ── */
+.radio-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.radio-opt{display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--rule2);border-radius:7px;cursor:pointer;font-size:13px;color:var(--ink2);transition:all 0.15s;user-select:none}
+.radio-opt:has(input:checked){border-color:var(--purple);background:var(--purple-l);color:var(--purple-d)}
+.radio-opt input[type=radio]{accent-color:var(--purple);width:13px;height:13px}
+.radio-sub{font-size:11px;color:var(--ink3);margin-left:2px}
+.radio-opt:has(input:checked) .radio-sub{color:var(--purple-m)}
+
+/* ── HO BLOCK ── */
+.ho-block{background:linear-gradient(135deg,#f5f0ff 0%,#ede5ff 100%);border:1.5px solid var(--purple-border);border-radius:var(--r);padding:18px 22px}
+.block-title{font-size:13px;font-weight:700;color:var(--purple);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
+.section-divider{border-top:1px solid var(--purple-border);margin:14px 0}
+.field-section-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--purple-m);margin-bottom:8px}
+.block-note{font-size:12px;color:var(--ink3);margin-top:12px;padding-top:12px;border-top:1px solid var(--purple-border);line-height:1.6}
+
+/* ── VENUE BLOCKS ── */
+.venue-block{background:var(--card);border:1.5px solid var(--rule);border-radius:var(--r);margin-bottom:10px;box-shadow:0 1px 4px rgba(103,58,182,0.05);overflow:hidden;transition:border-color 0.15s}
+.venue-block:focus-within{border-color:var(--purple-border)}
+.venue-hdr{display:flex;align-items:center;gap:11px;padding:11px 16px;background:var(--bg);border-bottom:1px solid var(--rule)}
+.venue-num{width:24px;height:24px;border-radius:50%;background:var(--grad1);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.venue-name-inp{flex:1;background:none;border:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--ink);outline:none;min-width:0}
+.venue-name-inp::placeholder{color:var(--ink3);font-weight:400}
+.venue-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--purple-l);color:var(--purple);white-space:nowrap}
+.venue-rm{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:20px;line-height:1;padding:1px 4px;border-radius:4px;transition:color 0.15s}
+.venue-rm:hover{color:#c0392b}
+.venue-body{padding:14px 16px}
+.sc-badge{display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--purple-l);border-radius:7px;margin-bottom:12px;font-size:13px;color:var(--purple);font-weight:500;border:1px solid var(--purple-border)}
+.venue-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:10px}
+.venue-note{font-size:12px;color:var(--ink3);margin-top:10px;padding-top:10px;border-top:1px solid var(--rule);line-height:1.6}
+
+.add-btn{display:inline-flex;align-items:center;gap:7px;background:none;border:1.5px dashed var(--purple-border);border-radius:8px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--purple);cursor:pointer;transition:all 0.15s}
+.add-btn:hover{background:var(--purple-l);border-color:var(--purple)}
+
+/* ── TOTAL ── */
+.total-box{background:var(--grad1);color:#fff;border-radius:var(--r);padding:22px 26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:0 4px 20px rgba(103,58,182,0.28)}
+.total-lbl{font-size:13px;font-weight:500;opacity:0.8;margin-bottom:3px}
+.total-sub2{font-size:12px;opacity:0.55;margin-top:4px}
+.total-num{font-size:56px;font-weight:800;line-height:1;letter-spacing:-0.03em}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:9px 13px;font-weight:600;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3);border-bottom:2px solid var(--rule);background:var(--bg)}
+.tbl td{padding:10px 13px;border-bottom:1px solid var(--rule);color:var(--ink2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.num{text-align:right;font-weight:700;color:var(--purple);font-size:14px}
+.tbl tfoot td{font-weight:700;color:var(--ink);border-top:2px solid var(--rule2);padding-top:12px;background:var(--purple-l)}
+.tbl tfoot td.num{color:var(--purple);font-size:16px}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:5px;letter-spacing:0.04em}
+.tag-ho{background:var(--purple-l);color:var(--purple)}
+.tag-venue{background:var(--blue-l);color:var(--blue)}
+
+/* ── SERVER SPEC ── */
+.spec-result{background:var(--grad1);color:#fff;border-radius:var(--r);padding:22px 26px;box-shadow:0 4px 20px rgba(103,58,182,0.28);margin-bottom:16px}
+.spec-result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:4px}
+.spec-stat{background:rgba(255,255,255,0.12);border-radius:8px;padding:12px 14px}
+.spec-stat-val{font-size:26px;font-weight:800;line-height:1;letter-spacing:-0.02em}
+.spec-stat-lbl{font-size:11px;opacity:0.7;margin-top:3px;font-weight:500}
+.spec-stat-sub{font-size:10px;opacity:0.5;margin-top:2px}
+.lic-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:580px){.lic-grid{grid-template-columns:1fr}}
+.lic-card{background:var(--card);border:1.5px solid var(--rule);border-radius:var(--r);padding:18px;box-shadow:0 1px 4px rgba(103,58,182,0.05)}
+.lic-card.recommended{border-color:var(--purple);background:var(--purple-l)}
+.lic-card h3{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.lic-rec-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--purple);color:#fff;letter-spacing:0.04em}
+.lic-card p{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:6px}
+.lic-card .lic-detail{font-size:12px;color:var(--ink3);line-height:1.55}
+.lic-card .lic-cost-note{font-size:12px;font-weight:600;color:var(--purple);margin-top:8px;padding-top:8px;border-top:1px solid var(--rule)}
+.lic-card.recommended .lic-cost-note{border-top-color:var(--purple-border)}
+.spec-table-wrap{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(103,58,182,0.05)}
+.spec-breakdown-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3);padding:12px 16px 8px;border-bottom:1px solid var(--rule);background:var(--bg)}
+.warning-box{background:var(--warn-l);border:1.5px solid #f0c878;border-radius:var(--r);padding:13px 17px;font-size:13px;color:var(--warn);line-height:1.6;margin-bottom:14px}
+.warning-box strong{color:var(--warn)}
+.spec-formula-note{font-size:12px;color:var(--ink3);padding:12px 16px;border-top:1px solid var(--rule);background:var(--bg);line-height:1.6}
+.tsplus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.tier-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.04em}
+.tier-ok{background:var(--green-l);color:var(--green)}
+.tier-warn{background:var(--warn-l);color:var(--warn)}
+.tier-bad{background:#fdf0f0;color:#8b1a1a}
+.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:560px){.exp-grid{grid-template-columns:1fr}}
+.exp-card{background:var(--card);border:1.5px solid var(--rule);border-radius:var(--r);padding:18px;box-shadow:0 1px 3px rgba(103,58,182,0.05)}
+.exp-card h3{font-size:14px;font-weight:700;margin-bottom:7px;color:var(--ink);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.exp-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.04em;background:var(--purple-l);color:var(--purple)}
+.exp-card p{font-size:13px;color:var(--ink2);line-height:1.65;margin-bottom:7px}
+.exp-when{font-size:12px;font-weight:500;color:var(--green);background:var(--green-l);padding:7px 10px;border-radius:6px;margin-top:7px}
+.exp-eg{font-size:12px;color:var(--ink3);font-style:italic;margin-top:7px;padding-top:7px;border-top:1px solid var(--rule)}
+.info-box{background:var(--purple-l);border:1.5px solid var(--purple-border);border-radius:var(--r);padding:13px 17px;font-size:13px;color:var(--purple-d);line-height:1.6;margin:13px 0}
+
+/* ── SUMMARY ── */
+#pane-summary .wrap{padding-top:18px}
+.sum-actions{display:flex;gap:10px;justify-content:flex-end;margin-bottom:18px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:8px;padding:9px 17px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;border:none}
+.btn-out{background:var(--card);border:1.5px solid var(--rule2);color:var(--ink2)}
+.btn-out:hover{border-color:var(--purple);color:var(--purple)}
+.btn-pri{background:var(--grad1);color:#fff;box-shadow:0 2px 8px rgba(103,58,182,0.28)}
+.btn-pri:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(103,58,182,0.36)}
+
+.sum-doc{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 12px rgba(103,58,182,0.08)}
+.sum-hdr{background:var(--grad1);color:#fff;padding:28px 34px}
+.sum-hdr-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sum-logo{font-size:18px;font-weight:800;letter-spacing:-0.02em;color:#fff;display:flex;align-items:center;gap:4px}
+.sum-sep{width:1px;height:18px;background:rgba(255,255,255,0.3)}
+.sum-prod-lbl{font-size:11px;font-weight:500;color:rgba(255,255,255,0.6)}
+.sum-hdr h1{font-size:18px;font-weight:700;margin-bottom:4px;line-height:1.3}
+.sum-hdr p{font-size:13px;opacity:0.65}
+.sum-meta{margin-top:14px;display:flex;gap:20px;flex-wrap:wrap;font-size:11px;opacity:0.5}
+.sum-body{padding:28px 34px}
+.sum-sec{margin-bottom:24px}
+.sum-sec:last-child{margin-bottom:0}
+.sum-sec h2{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--rule)}
+.sum-total-bar{background:var(--grad1);border-radius:8px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;box-shadow:0 2px 10px rgba(103,58,182,0.22)}
+.sum-total-lbl{font-size:13px;font-weight:600;color:rgba(255,255,255,0.85)}
+.sum-total-n{font-size:34px;font-weight:800;color:#fff;letter-spacing:-0.02em;line-height:1}
+.sum-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.sum-tbl th{text-align:left;padding:8px 12px;background:var(--purple);color:#fff;font-weight:600;font-size:11px;letter-spacing:0.04em}
+.sum-tbl th:first-child{border-radius:6px 0 0 0}.sum-tbl th:last-child{border-radius:0 6px 0 0;text-align:right}
+.sum-tbl td{padding:8px 12px;border-bottom:1px solid var(--rule);color:var(--ink2)}
+.sum-tbl td:last-child{text-align:right;font-weight:700;color:var(--purple)}
+.sum-tbl .trow-total td{font-weight:700;color:var(--ink);border-top:2px solid var(--rule2);background:var(--purple-l)}
+.sum-tbl .trow-total td:last-child{color:var(--purple);font-size:15px}
+.sum-note{font-size:12px;color:var(--ink3);line-height:1.65;padding:12px 15px;background:var(--bg);border-radius:7px;margin-top:12px;border:1px solid var(--rule)}
+.sum-foot{border-top:1px solid var(--rule);padding:12px 34px;font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;background:var(--bg)}
+
+/* ── COPY BTN ── */
+.copy-btn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:6px;padding:5px 12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;flex-shrink:0;white-space:nowrap}
+.copy-btn:hover{background:rgba(255,255,255,0.25)}
+.copy-btn.copied{background:rgba(255,255,255,0.25)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── SUMMARY SPEC ── */
+.sum-spec-hdr{background:var(--grad1);border-radius:8px;padding:14px 18px;margin-bottom:12px}
+.sum-spec-stat{background:rgba(255,255,255,0.12);border-radius:7px;padding:10px 12px;color:#fff}
+.sum-spec-val{font-size:22px;font-weight:800;line-height:1;letter-spacing:-0.02em}
+.sum-spec-lbl{font-size:11px;opacity:0.7;margin-top:2px;font-weight:500}
+
+@media print{
+  body{background:#fff}
+  .tab-bar,.sum-actions,#pane-calculator,#pane-explainer,#pane-serverspec{display:none!important}
+  #pane-summary{display:block!important}
+  .sum-doc{border:none;box-shadow:none}
+  .sum-hdr,.sum-total-bar,.sum-tbl th,.sum-spec-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .wrap{padding:0}
+}
+@media(max-width:600px){
+  .wrap{padding:20px 16px 60px}
+  .hdr{padding:0 16px}
+  .sum-body,.sum-hdr{padding:20px}
+  .sum-foot{padding:12px 20px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="hdr-brand">
+      <div class="oolio-mark">
+        <svg width="74" height="19" viewBox="0 0 926 242" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M805,342 C871.826455,342 926,396.173545 926,463 C926,529.826455 871.826455,584 805,584 C738.173545,584 684,529.826455 684,463 C684,396.173545 738.173545,342 805,342 Z M805,423 C782.90861,423 765,440.90861 765,463 C765,485.09139 782.90861,503 805,503 C827.09139,503 845,485.09139 845,463 C845,440.90861 827.09139,423 805,423 Z M604,342 L664,342 C669.522847,342 674,346.477153 674,352 L674,574 C674,579.522847 669.522847,584 664,584 L604,584 C598.477153,584 594,579.522847 594,574 L594,352 C594,346.477153 598.477153,342 604,342 Z M424,584 C418.477153,584 414,579.522847 414,574 L414,352 C414,346.477153 418.477153,342 424,342 L484,342 C489.522847,342 494,346.477153 494,352 L494,504 L574,504 C579.522847,504 584,508.477153 584,514 L584,574 C584,579.522847 579.522847,584 574,584 L424,584 Z M283,342 C349.826455,342 404,396.173545 404,463 C404,529.826455 349.826455,584 283,584 C251.847179,584 223.444076,572.227053 201.997096,552.887563 C180.555042,572.227418 152.152338,584 121,584 C54.1735453,584 0,529.826455 0,463 C0,396.173545 54.1735453,342 121,342 C152.152821,342 180.555924,353.772947 202.002904,373.112437 C223.444958,353.772582 251.847662,342 283,342 Z M283,423 C260.90861,423 243,440.90861 243,463 C243,485.09139 260.90861,503 283,503 C305.09139,503 323,485.09139 323,463 C323,440.90861 305.09139,423 283,423 Z M121,423 C98.90861,423 81,440.90861 81,463 C81,485.09139 98.90861,503 121,503 C143.09139,503 161,485.09139 161,463 C161,440.90861 143.09139,423 121,423 Z" transform="translate(0,-342)"/></svg>
+      </div>
+      <div class="hdr-sep"></div>
+      <div class="hdr-prod">Bepoz · HO Deployment Planner</div>
+    </div>
+    <h1>Head Office <em>Deployment Planner</em></h1>
+    <p>Calculate CAL requirements, size the HO server, and generate a customer-ready summary.</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('calculator')">Calculator</button>
+    <button class="tab-btn" onclick="showTab('serverspec')">Server Spec</button>
+    <button class="tab-btn" onclick="showTab('explainer')">What is a CAL?</button>
+    <button class="tab-btn" onclick="showTab('summary')">Client Summary</button>
+  </div>
+</header>
+
+<!-- ════════════ CALCULATOR ════════════ -->
+<div id="pane-calculator" class="tab-pane active">
+<div class="wrap">
+
+  <section>
+    <div class="sec-label">Client details</div>
+    <div class="card" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+      <div class="field" style="flex:2;min-width:170px">
+        <label>Client / group name</label>
+        <input type="text" id="client-name" placeholder="e.g. HLM Group" oninput="render()">
+      </div>
+      <div class="field" style="flex:2;min-width:170px">
+        <label>Prepared by</label>
+        <input type="text" id="bdm-name" placeholder="e.g. Jho Santos" oninput="render()">
+      </div>
+      <div class="field" style="flex:1;min-width:120px">
+        <label>Date</label>
+        <input type="text" id="doc-date" oninput="render()">
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">Head Office</div>
+    <h2>Head Office licences</h2>
+    <p style="margin-bottom:14px">All CALs are issued at Head Office. This covers HO's own devices, remote venue VPN connections, PDEs, and remote users. If HO is also a trading venue, include its POS terminals here.</p>
+    <div class="ho-block">
+      <div class="block-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Head Office <span class="tag tag-ho">HO</span>
+      </div>
+      <div class="grid-4">
+        <div class="field">
+          <label>POS terminals at HO</label>
+          <input type="number" id="ho-pos" min="0" value="0" oninput="render()">
+        </div>
+        <div class="field">
+          <label>Back-office workstations</label>
+          <input type="number" id="ho-bo" min="0" value="0" oninput="render()">
+        </div>
+        <div class="field">
+          <label>PDE devices</label>
+          <input type="number" id="ho-pde" min="0" value="0" oninput="render()">
+        </div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="field-section-label">Remote users (TSplus / RDP)</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:10px">
+        <div class="field">
+          <label>Number of remote users</label>
+          <input type="number" id="ho-remote" min="0" value="0" oninput="render()">
+        </div>
+      </div>
+      <div class="radio-row">
+        <label class="radio-opt"><input type="radio" name="ho-rtype" value="user" checked onchange="render()"> User CALs <span class="radio-sub">— 1 per person</span></label>
+        <label class="radio-opt"><input type="radio" name="ho-rtype" value="device" onchange="render()"> Device CALs <span class="radio-sub">— 1 per device</span></label>
+      </div>
+      <div class="block-note">Only include HO POS terminals if HO is also a trading venue. SmartPOS Mobile and Kiosk do <strong>not</strong> require a CAL.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">Remote venues</div>
+    <h2>Remote venues</h2>
+    <p style="margin-bottom:14px">Each venue has exactly one SmartController connecting to HO via VPN — this is always <strong>1 CAL per venue</strong>. If a venue also has local back-office workstations accessing Bepoz, add those below.</p>
+    <div id="venues-list"></div>
+    <button class="add-btn" onclick="addVenue()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add venue
+    </button>
+  </section>
+
+  <section>
+    <div class="sec-label">Result</div>
+    <h2>CAL total</h2>
+    <div class="total-box">
+      <div>
+        <div class="total-lbl">Total CALs required</div>
+        <div class="total-sub2" id="total-sub">Enter details above</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="total-num" id="total-num">0</div>
+        <button class="copy-btn" id="copy-total-btn" onclick="copyTotal()" title="Copy total to clipboard">Copy</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px;padding:0;overflow:hidden">
+      <table class="tbl">
+        <thead><tr><th>Item</th><th>Licence type</th><th>Where licenced</th><th style="text-align:right">CALs</th></tr></thead>
+        <tbody id="bd-body"></tbody>
+        <tfoot><tr><td colspan="3"><strong>Total</strong></td><td class="num" id="bd-total">0</td></tr></tfoot>
+      </table>
+    </div>
+    <div style="margin-top:18px;display:flex;justify-content:flex-end">
+      <button class="btn btn-pri" onclick="showTab('summary')">
+        Generate client summary
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<!-- ════════════ SERVER SPEC ════════════ -->
+<div id="pane-serverspec" class="tab-pane">
+<div class="wrap">
+
+  <section>
+    <div class="sec-label">About this tab</div>
+    <h2>Head Office server specification</h2>
+    <p style="margin-bottom:10px">This tab uses the venue and user counts from the Calculator tab to recommend a minimum server spec for the Head Office box. It covers hardware sizing, SQL Server licensing, Windows Server licensing, and TSplus licensing.</p>
+    <div class="info-box" style="margin-top:0">The HO server typically runs <strong>three workloads on one box</strong>: Bepoz application server, SQL Server Standard, and TSplus for remote users. All sizing below accounts for this combined load.</div>
+  </section>
+
+  <!-- OVERRIDE INPUTS -->
+  <section>
+    <div class="sec-label">Sizing inputs</div>
+    <h2>Adjust sizing inputs</h2>
+    <p style="margin-bottom:14px">These default to the values entered in the Calculator tab. Override here if needed.</p>
+    <div class="card">
+      <div class="grid-4" style="margin-bottom:14px">
+        <div class="field">
+          <label>Total named users</label>
+          <input type="number" id="spec-users-total" min="1" value="1" oninput="renderSpec()">
+        </div>
+        <div class="field">
+          <label>Concurrent users (peak)</label>
+          <input type="number" id="spec-users-concurrent" min="1" value="1" oninput="renderSpec()">
+        </div>
+        <div class="field">
+          <label>Remote venues</label>
+          <input type="number" id="spec-venues" min="0" value="0" oninput="renderSpec()">
+        </div>
+        <div class="field">
+          <label>TSplus / RDP users</label>
+          <input type="number" id="spec-tsplus" min="0" value="0" oninput="renderSpec()">
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--ink3)">These values are pre-filled from the Calculator tab. Concurrent users should reflect peak simultaneous logins — typically 60–70% of total named users for a busy site.</div>
+    </div>
+  </section>
+
+  <!-- HARDWARE RESULT -->
+  <section>
+    <div class="sec-label">Hardware recommendation</div>
+    <h2>Minimum server specification</h2>
+    <div id="spec-hw-result" class="spec-result">
+      <div style="font-size:12px;opacity:0.7;margin-bottom:10px;font-weight:500">MINIMUM RECOMMENDED SPECIFICATION</div>
+      <div class="spec-result-grid">
+        <div class="spec-stat"><div class="spec-stat-val" id="spec-ram-val">—</div><div class="spec-stat-lbl">RAM</div><div class="spec-stat-sub" id="spec-ram-sub"></div></div>
+        <div class="spec-stat"><div class="spec-stat-val" id="spec-cpu-val">—</div><div class="spec-stat-lbl">CPU cores</div><div class="spec-stat-sub" id="spec-cpu-sub"></div></div>
+        <div class="spec-stat"><div class="spec-stat-val">SSD</div><div class="spec-stat-lbl">Storage type</div><div class="spec-stat-sub">NVMe preferred</div></div>
+      </div>
+    </div>
+    <div id="spec-hw-warning" class="warning-box" style="display:none"></div>
+    <div class="spec-table-wrap">
+      <div class="spec-breakdown-title">How we got there</div>
+      <table class="tbl" id="spec-hw-table">
+        <thead><tr><th>Component</th><th>Reason</th><th style="text-align:right">RAM</th><th style="text-align:right">Cores</th></tr></thead>
+        <tbody id="spec-hw-tbody"></tbody>
+        <tfoot><tr>
+          <td colspan="2"><strong>Raw total</strong></td>
+          <td class="num" id="spec-ram-raw">—</td>
+          <td class="num" id="spec-cpu-raw">—</td>
+        </tr></tfoot>
+      </table>
+      <div class="spec-formula-note" id="spec-formula-note"></div>
+    </div>
+  </section>
+
+  <!-- SQL LICENSING -->
+  <section>
+    <div class="sec-label">SQL Server licensing</div>
+    <h2>SQL Server Standard</h2>
+    <p style="margin-bottom:14px">Bepoz at Head Office requires <strong>SQL Server Standard</strong>. It is licensed per core — sold in 2-core packs, minimum 4 cores per server regardless of actual core count.</p>
+    <div class="spec-table-wrap" style="margin-bottom:14px">
+      <div class="spec-breakdown-title">SQL Server licence calculation</div>
+      <table class="tbl">
+        <thead><tr><th>Item</th><th>Detail</th><th style="text-align:right">Qty</th></tr></thead>
+        <tbody id="spec-sql-tbody"></tbody>
+      </table>
+    </div>
+    <div class="info-box" style="margin-bottom:0">SQL Server Standard per-core licences cover all users and devices accessing SQL — no separate CALs needed for SQL when using per-core licensing. Remote venues connecting via SmartController are covered.</div>
+  </section>
+
+  <!-- WINDOWS SERVER -->
+  <section>
+    <div class="sec-label">Windows Server licensing</div>
+    <h2>Windows Server</h2>
+    <p style="margin-bottom:14px">Windows Server is licensed per physical core (sold in 2-core packs, minimum 8 cores per CPU / 16 per server). Standard edition covers the physical host plus up to 2 Hyper-V VMs. Datacenter covers unlimited VMs on the same hardware.</p>
+    <div id="spec-ws-warning" class="warning-box" style="display:none"></div>
+    <div class="lic-grid" id="spec-ws-grid">
+      <div class="lic-card recommended" id="ws-standard-card">
+        <h3>Windows Server Standard <span class="lic-rec-badge">Recommended</span></h3>
+        <p>Covers the bare metal host plus up to 2 Hyper-V virtual machines. Right choice for a single-server HO setup.</p>
+        <div class="lic-detail" id="ws-standard-detail">—</div>
+        <div class="lic-cost-note" id="ws-standard-cost">—</div>
+      </div>
+      <div class="lic-card" id="ws-datacenter-card">
+        <h3>Windows Server Datacenter</h3>
+        <p>Covers unlimited Hyper-V VMs on the same physical host. Only worth it if running 3+ VMs on this box.</p>
+        <div class="lic-detail" id="ws-datacenter-detail">—</div>
+        <div class="lic-cost-note" id="ws-datacenter-cost">—</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TSPLUS -->
+  <section>
+    <div class="sec-label">Remote access licensing</div>
+    <h2>TSplus</h2>
+    <p style="margin-bottom:14px">TSplus is licensed per concurrent user. Pick the tier that covers peak simultaneous remote sessions — you can't exceed the licensed concurrent count.</p>
+    <div id="spec-tsplus-result"></div>
+  </section>
+
+  <!-- BEPOZ CAL REMINDER -->
+  <section>
+    <div class="sec-label">Don't forget</div>
+    <h2>Bepoz CALs</h2>
+    <div class="card" style="border-left:4px solid var(--purple);background:var(--purple-l)">
+      <p>The server spec above covers the <strong>infrastructure licences</strong>. You still need Bepoz CALs for every connection to the Bepoz application — go back to the Calculator tab to get that count. Both figures belong in the client summary.</p>
+      <div style="margin-top:12px">
+        <button class="btn btn-pri" onclick="showTab('calculator')" style="font-size:13px;padding:8px 16px">← Back to CAL calculator</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<!-- ════════════ EXPLAINER ════════════ -->
+<div id="pane-explainer" class="tab-pane">
+<div class="wrap">
+
+  <section>
+    <div class="sec-label">The basics</div>
+    <h2>What is a CAL?</h2>
+    <div class="card" style="border-left:4px solid var(--purple);background:var(--purple-l)">
+      <p>Think of it like a restaurant. You (the BDM) take the order. Onboarding cooks it. A <strong>CAL — Client Access Licence</strong> — is how many seats the customer needs at the table. Get the count wrong and the kitchen prepares the wrong amount of food.</p>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <p>A <strong>CAL</strong> is a licence permitting a device, user, or system connection to access the Bepoz platform. All licences are held and counted at Head Office. Remote venues connect to HO via VPN through a SmartController — there is always exactly one SmartController per venue, and that connection is what's licenced.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">User CAL vs Device CAL</div>
+    <h2>Two types of CAL for remote access</h2>
+    <div class="exp-grid">
+      <div class="exp-card">
+        <h3>User CAL <span class="exp-badge">Recommended</span></h3>
+        <p>One licence per <strong>person</strong>, regardless of how many devices they connect from. A manager logging in from their laptop at home and their desktop at the office is still just 1 CAL.</p>
+        <div class="exp-when">Best for: roaming staff, managers, HO users who move between devices</div>
+        <div class="exp-eg">3 area managers with remote access = 3 User CALs</div>
+      </div>
+      <div class="exp-card">
+        <h3>Device CAL</h3>
+        <p>One licence per <strong>device</strong>, regardless of how many users share it. Five staff sharing one back-office PC on a roster is still just 1 CAL.</p>
+        <div class="exp-when">Best for: shared fixed terminals with many users taking turns on one machine</div>
+        <div class="exp-eg">2 shared manager PCs = 2 Device CALs, no matter how many staff use them</div>
+      </div>
+    </div>
+    <div class="info-box">For most hospitality groups, <strong>User CALs are the right call.</strong> Managers and HO staff typically roam across devices. Device CALs only make sense when a single fixed terminal is shared by many users.</div>
+  </section>
+
+  <section>
+    <div class="sec-label">Reference</div>
+    <h2>What needs a CAL — and what doesn't</h2>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl">
+        <thead><tr><th>Item</th><th>CAL required?</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>SmartController (remote venue)</strong></td><td><span style="color:var(--green);font-weight:700">Yes — 1 per venue</span></td><td>One per venue, always. Connects to HO via VPN.</td></tr>
+          <tr><td><strong>HO POS terminals</strong></td><td><span style="color:var(--green);font-weight:700">Yes — 1 per terminal</span></td><td>Only if HO is also a trading venue</td></tr>
+          <tr><td><strong>HO back-office workstations</strong></td><td><span style="color:var(--green);font-weight:700">Yes — 1 per PC</span></td><td>Any PC running Bepoz Manager at HO</td></tr>
+          <tr><td><strong>Venue back-office workstations</strong></td><td><span style="color:var(--green);font-weight:700">Yes — User or Device CAL</span></td><td>Add per venue in the calculator</td></tr>
+          <tr><td><strong>PDE devices</strong></td><td><span style="color:var(--green);font-weight:700">Yes — 1 per device</span></td><td>Price Display Equipment, licenced at HO</td></tr>
+          <tr><td><strong>Remote users (TSplus / RDP)</strong></td><td><span style="color:var(--green);font-weight:700">Yes — User or Device CAL</span></td><td>User CAL recommended for most setups</td></tr>
+          <tr><td><strong>SmartPOS Mobile</strong></td><td><span style="color:var(--ink3);font-weight:700">No</span></td><td>Does not require a CAL</td></tr>
+          <tr><td><strong>Kiosk</strong></td><td><span style="color:var(--ink3);font-weight:700">No</span></td><td>Does not require a CAL</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<!-- ════════════ CLIENT SUMMARY ════════════ -->
+<div id="pane-summary" class="tab-pane">
+<div class="wrap">
+
+  <div class="sum-actions">
+    <button class="btn btn-out" onclick="showTab('calculator')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to calculator
+    </button>
+    <button class="btn btn-out" onclick="shareURL()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Share link
+    </button>
+    <button class="btn btn-pri" onclick="printSummary()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="sum-doc">
+    <div class="sum-hdr">
+      <div class="sum-hdr-brand">
+        <div class="sum-logo">
+          <svg width="64" height="17" viewBox="0 0 926 242" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M805,342 C871.826455,342 926,396.173545 926,463 C926,529.826455 871.826455,584 805,584 C738.173545,584 684,529.826455 684,463 C684,396.173545 738.173545,342 805,342 Z M805,423 C782.90861,423 765,440.90861 765,463 C765,485.09139 782.90861,503 805,503 C827.09139,503 845,485.09139 845,463 C845,440.90861 827.09139,423 805,423 Z M604,342 L664,342 C669.522847,342 674,346.477153 674,352 L674,574 C674,579.522847 669.522847,584 664,584 L604,584 C598.477153,584 594,579.522847 594,574 L594,352 C594,346.477153 598.477153,342 604,342 Z M424,584 C418.477153,584 414,579.522847 414,574 L414,352 C414,346.477153 418.477153,342 424,342 L484,342 C489.522847,342 494,346.477153 494,352 L494,504 L574,504 C579.522847,504 584,508.477153 584,514 L584,574 C584,579.522847 579.522847,584 574,584 L424,584 Z M283,342 C349.826455,342 404,396.173545 404,463 C404,529.826455 349.826455,584 283,584 C251.847179,584 223.444076,572.227053 201.997096,552.887563 C180.555042,572.227418 152.152338,584 121,584 C54.1735453,584 0,529.826455 0,463 C0,396.173545 54.1735453,342 121,342 C152.152821,342 180.555924,353.772947 202.002904,373.112437 C223.444958,353.772582 251.847662,342 283,342 Z M283,423 C260.90861,423 243,440.90861 243,463 C243,485.09139 260.90861,503 283,503 C305.09139,503 323,485.09139 323,463 C323,440.90861 305.09139,423 283,423 Z M121,423 C98.90861,423 81,440.90861 81,463 C81,485.09139 98.90861,503 121,503 C143.09139,503 161,485.09139 161,463 C161,440.90861 143.09139,423 121,423 Z" transform="translate(0,-342)"/></svg>
+        </div>
+        <div class="sum-sep"></div>
+        <div class="sum-prod-lbl">Bepoz · HO Deployment Planner</div>
+      </div>
+      <h1 id="sum-title">CAL Requirements</h1>
+      <p id="sum-subtitle">Prepared for: —</p>
+      <div class="sum-meta">
+        <span id="sum-bdm">Prepared by: —</span>
+        <span id="sum-date-el">Date: —</span>
+      </div>
+    </div>
+
+    <div class="sum-body">
+      <div class="sum-sec">
+        <h2>Total CALs required</h2>
+        <div class="sum-total-bar">
+          <div class="sum-total-lbl">Client Access Licences</div>
+          <div class="sum-total-n" id="sum-total">0</div>
+        </div>
+        <table class="sum-tbl">
+          <thead><tr><th>Item</th><th>Licence type</th><th>Where licenced</th><th>CALs</th></tr></thead>
+          <tbody id="sum-tbody"></tbody>
+        </table>
+        <div class="sum-note">All CALs are issued and held at Head Office. Remote venues connect via VPN through a SmartController — each venue requires one CAL for this connection. SmartPOS Mobile and Kiosk devices do not require a CAL and are not included in this count.</div>
+      </div>
+
+      <div class="sum-sec">
+        <h2>Head Office server specification</h2>
+        <div class="sum-spec-hdr">
+          <div style="font-size:11px;opacity:0.7;margin-bottom:10px;font-weight:500;letter-spacing:0.08em;color:#fff">MINIMUM RECOMMENDED SPECIFICATION</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px">
+            <div class="sum-spec-stat"><div class="sum-spec-val" id="sum-spec-ram">—</div><div class="sum-spec-lbl">RAM</div></div>
+            <div class="sum-spec-stat"><div class="sum-spec-val" id="sum-spec-cpu">—</div><div class="sum-spec-lbl">CPU cores</div></div>
+            <div class="sum-spec-stat"><div class="sum-spec-val">SSD</div><div class="sum-spec-lbl">Storage</div></div>
+          </div>
+        </div>
+        <table class="sum-tbl">
+          <thead><tr><th>Licence</th><th>Recommendation</th></tr></thead>
+          <tbody id="sum-spec-tbody"></tbody>
+        </table>
+        <div class="sum-note" style="margin-top:10px">Server specification is a minimum recommendation based on venue and user counts. Always recommend the next tier up for production workloads. Full breakdown in the Server Spec tab.</div>
+      </div>
+
+      <div class="sum-sec">
+        <h2>About Client Access Licences</h2>
+        <p style="font-size:13px;color:var(--ink2);margin-bottom:8px">A <strong>Client Access Licence (CAL)</strong> is required for every device, user, or system connection that accesses the Bepoz platform. All licences are administered at Head Office and cover connections from remote venues, on-site HO equipment, and remote users.</p>
+        <p style="font-size:13px;color:var(--ink2)" id="sum-remote-note"></p>
+      </div>
+
+      <div class="sum-sec">
+        <h2>Important notes</h2>
+        <p style="font-size:13px;color:var(--ink2)">This assessment is based on information provided at time of scoping. Changes to venue count, device quantities, or user numbers will affect the final CAL requirement. Please confirm all figures with your Bepoz onboarding contact before finalising your order.</p>
+        <p style="font-size:13px;color:var(--ink2);margin-top:6px">This document does not constitute a formal quote. Final pricing is subject to commercial agreement with Oolio Group.</p>
+      </div>
+    </div>
+
+    <div class="sum-foot">
+      <span>Oolio Group · Bepoz NSW</span>
+      <span id="sum-foot-date"></span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+let venues = [], venueCounter = 0, _skipSave = false;
+
+function addVenue(silent) {
+  venueCounter++;
+  const id = venueCounter;
+  venues.push({ id, name: '' });
+  const list = document.getElementById('venues-list');
+  const div = document.createElement('div');
+  div.className = 'venue-block';
+  div.id = 'vblock-' + id;
+  div.innerHTML = `
+    <div class="venue-hdr">
+      <div class="venue-num" id="vnum-${id}">${venues.length}</div>
+      <input class="venue-name-inp" id="vname-${id}" type="text" placeholder="Venue name (e.g. Epping Plaza Hotel)" value="" oninput="updateName(${id},this.value)">
+      <span class="venue-pill" id="vpill-${id}">1 CAL</span>
+      <button class="venue-rm" onclick="removeVenue(${id})" title="Remove venue">×</button>
+    </div>
+    <div class="venue-body">
+      <div class="sc-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        SmartController — 1 CAL (VPN connection to HO, always included)
+      </div>
+      <div class="venue-grid">
+        <div class="field">
+          <label>Back-office workstations</label>
+          <input type="number" id="vws-${id}" min="0" value="0" oninput="render()">
+        </div>
+      </div>
+      <div id="vwstype-wrap-${id}" style="display:none;margin-top:8px">
+        <div class="field-section-label" style="margin-bottom:6px;color:var(--ink3)">Workstation CAL type</div>
+        <div class="radio-row">
+          <label class="radio-opt"><input type="radio" name="vwstype-${id}" value="user" checked onchange="render()"> User CALs <span class="radio-sub">— 1 per person</span></label>
+          <label class="radio-opt"><input type="radio" name="vwstype-${id}" value="device" onchange="render()"> Device CALs <span class="radio-sub">— 1 per device</span></label>
+        </div>
+      </div>
+      <div class="venue-note">SmartPOS Mobile and Kiosk at this venue do <strong>not</strong> require a CAL.</div>
+    </div>`;
+  list.appendChild(div);
+
+  // show/hide workstation type when count changes
+  document.getElementById('vws-' + id).addEventListener('input', function() {
+    const wrap = document.getElementById('vwstype-wrap-' + id);
+    wrap.style.display = parseInt(this.value) > 0 ? 'block' : 'none';
+  });
+
+  if (!silent) render();
+}
+
+function removeVenue(id) {
+  venues = venues.filter(v => v.id !== id);
+  document.getElementById('vblock-' + id)?.remove();
+  venues.forEach((v, i) => {
+    const el = document.getElementById('vnum-' + v.id);
+    if (el) el.textContent = i + 1;
+  });
+  render();
+}
+
+function updateName(id, val) {
+  const v = venues.find(v => v.id === id);
+  if (v) v.name = val;
+  render();
+}
+
+function gv(id) { return parseInt(document.getElementById(id)?.value) || 0; }
+function gs(id) { return document.getElementById(id)?.value.trim() || ''; }
+function gr(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || 'user'; }
+
+function calcAll() {
+  const lines = [];
+  const hoPos = gv('ho-pos'), hoBo = gv('ho-bo'), hoPde = gv('ho-pde'), hoRem = gv('ho-remote');
+  const hoRType = gr('ho-rtype');
+
+  if (hoPos > 0)  lines.push({ label:'POS terminals at HO', type:'Device CAL', where:'Head Office', cals:hoPos });
+  if (hoBo > 0)   lines.push({ label:'Back-office workstations (HO)', type:'Device CAL', where:'Head Office', cals:hoBo });
+  if (hoPde > 0)  lines.push({ label:'PDE devices', type:'Device CAL', where:'Head Office', cals:hoPde });
+  if (hoRem > 0)  lines.push({ label:'Remote users (TSplus / RDP)', type: hoRType==='device'?'Device CAL':'User CAL', where:'Head Office', cals:hoRem });
+
+  venues.forEach((v, i) => {
+    const name = v.name || `Venue ${i + 1}`;
+    const ws   = gv('vws-' + v.id);
+    const wsType = gr('vwstype-' + v.id);
+    lines.push({ label:`${name} — SmartController`, type:'Device CAL', where:'Head Office (VPN)', cals:1, vid:v.id });
+    if (ws > 0) lines.push({ label:`${name} — workstations`, type: wsType==='device'?'Device CAL':'User CAL', where:'Head Office (VPN)', cals:ws, vid:v.id });
+  });
+
+  return { lines, total: lines.reduce((s,l)=>s+l.cals,0), hoRem, hoRType };
+}
+
+function render() {
+  const { lines, total, hoRem, hoRType } = calcAll();
+
+  // venue pills
+  venues.forEach((v, i) => {
+    const ws = gv('vws-' + v.id);
+    const pill = document.getElementById('vpill-' + v.id);
+    if (pill) pill.textContent = (1 + ws) + ' CAL' + (1 + ws !== 1 ? 's' : '');
+  });
+
+  document.getElementById('total-num').textContent = total;
+  document.getElementById('total-sub').textContent = total === 0 ? 'Enter details above' : `${lines.length} line item${lines.length !== 1 ? 's' : ''}`;
+
+  const tbody = document.getElementById('bd-body');
+  if (tbody) {
+    tbody.innerHTML = lines.length
+      ? lines.map(l=>`<tr>
+          <td><strong>${l.label}</strong></td>
+          <td><span style="font-size:11px;color:var(--ink3)">${l.type}</span></td>
+          <td>${l.where} <span class="tag ${l.vid?'tag-venue':'tag-ho'}">${l.vid?'Venue':'HO'}</span></td>
+          <td class="num">${l.cals}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="4" style="color:var(--ink3);font-style:italic;text-align:center;padding:18px">No items entered yet</td></tr>';
+    document.getElementById('bd-total').textContent = total;
+  }
+
+  // summary tab
+  const cn   = gs('client-name');
+  const bdm  = gs('bdm-name');
+  const date = gs('doc-date');
+  const g = id => document.getElementById(id);
+
+  g('sum-title').textContent    = cn ? `CAL Requirements — ${cn}` : 'CAL Requirements';
+  g('sum-subtitle').textContent = `Prepared for: ${cn||'—'}`;
+  g('sum-bdm').textContent      = `Prepared by: ${bdm||'—'}`;
+  g('sum-date-el').textContent  = `Date: ${date||'—'}`;
+  g('sum-total').textContent    = total;
+  g('sum-foot-date').textContent = date || '';
+  g('sum-remote-note').textContent = hoRem > 0
+    ? `Remote access licences in this assessment use ${hoRType==='device'?'Device CALs (one licence per connecting device)':'User CALs (one licence per named user, regardless of how many devices they connect from)'}. Contact your Bepoz representative to change the licence type.`
+    : '';
+
+  const sb = g('sum-tbody');
+  if (sb) {
+    sb.innerHTML = lines.map(l=>`<tr>
+      <td>${l.label}</td><td>${l.type}</td><td>${l.where}</td><td>${l.cals}</td>
+    </tr>`).join('');
+    sb.innerHTML += `<tr class="trow-total">
+      <td colspan="3"><strong>Total CALs</strong></td><td>${total}</td>
+    </tr>`;
+  }
+
+  if (!_skipSave) saveState();
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pane-'+name).classList.add('active');
+  const idx = {calculator:0,serverspec:1,explainer:2,summary:3};
+  document.querySelectorAll('.tab-btn')[idx[name]]?.classList.add('active');
+  if (name==='summary') { syncAndRenderSpec(); render(); }
+  if (name==='serverspec') syncAndRenderSpec();
+}
+
+function syncAndRenderSpec() {
+  // Pull values from calculator tab into spec inputs (don't overwrite if user has edited)
+  const hoRem   = gv('ho-remote');
+  const vCount  = venues.length;
+  const totalWs = gv('ho-bo') + venues.reduce((s,v)=>s+gv('vws-'+v.id),0);
+  const named   = Math.max(totalWs, hoRem, 1);
+  const conc    = Math.max(Math.ceil(named * 0.65), hoRem, 1);
+  // Only auto-fill if still at defaults
+  if (gv('spec-users-total') <= 1)      document.getElementById('spec-users-total').value = named;
+  if (gv('spec-users-concurrent') <= 1) document.getElementById('spec-users-concurrent').value = conc;
+  if (gv('spec-venues') <= 0)           document.getElementById('spec-venues').value = vCount;
+  if (gv('spec-tsplus') <= 0)           document.getElementById('spec-tsplus').value = hoRem;
+  renderSpec();
+}
+
+function renderSpec() {
+  const usersTotal  = Math.max(gv('spec-users-total'), 1);
+  const usersCon    = Math.max(gv('spec-users-concurrent'), 1);
+  const venueCount  = gv('spec-venues');
+  const tsplusUsers = gv('spec-tsplus');
+
+  // ── RAM calculation ──
+  const ramBase      = 8;    // OS + Bepoz app + SQL baseline
+  const ramPerUser   = 0.5;  // per concurrent user (GB)
+  const ramPerVenue  = 0.25; // per venue VPN/SQL polling (GB)
+  const ramTsplus    = tsplusUsers * 0.5; // TSplus session overhead
+
+  const ramRaw = ramBase + (usersCon * ramPerUser) + (venueCount * ramPerVenue) + ramTsplus;
+
+  // Round up to standard sizes
+  const ramSizes = [8,16,32,64,128];
+  const ramFinal = ramSizes.find(s => s >= ramRaw) || 128;
+
+  // ── CPU calculation ──
+  const coreBase     = 4;
+  const corePerUser  = 0.5;  // per concurrent user
+  const corePerVenue = 0.25;
+  const coreTsplus   = tsplusUsers * 0.25;
+
+  const coreRaw = coreBase + (usersCon * corePerUser) + (venueCount * corePerVenue) + coreTsplus;
+  // Round to next even number, minimum 4
+  const coreFinal = Math.max(4, Math.ceil(coreRaw / 2) * 2);
+
+  // ── SQL Server licensing ──
+  // Minimum 4 cores, sold in 2-core packs
+  const sqlCores    = Math.max(4, coreFinal);
+  const sqlPacks    = Math.ceil(sqlCores / 2);
+
+  // ── Windows Server licensing ──
+  // Minimum 8 cores per CPU, 16 per server, 2-core packs
+  const wsCorePacks = Math.max(8, Math.ceil(coreFinal / 2) * 2); // min 16 cores worth of packs for a single CPU server → actually min 8 core packs = 16 core licences
+  const wsPackCount = Math.max(8, Math.ceil(coreFinal / 2)); // 2-core packs, min 8 packs (=16 cores)
+
+  // ── UPDATE HARDWARE ──
+  document.getElementById('spec-ram-val').textContent  = ramFinal + 'GB';
+  document.getElementById('spec-cpu-val').textContent  = coreFinal;
+  document.getElementById('spec-ram-sub').textContent  = `raw calc: ${ramRaw.toFixed(1)}GB`;
+  document.getElementById('spec-cpu-sub').textContent  = `raw calc: ${coreRaw.toFixed(1)}`;
+
+  const hwRows = [
+    { c:'Base (OS + SQL + Bepoz app)', r:'Always required', ram:ramBase, cpu:coreBase },
+    { c:`${usersCon} concurrent users × 0.5GB / 0.5 core`, r:'Back-office + HO sessions', ram:(usersCon*ramPerUser), cpu:(usersCon*corePerUser) },
+    { c:`${venueCount} remote venues × 0.25GB / 0.25 core`, r:'SQL polling via SmartController', ram:(venueCount*ramPerVenue), cpu:(venueCount*corePerVenue) },
+  ];
+  if (tsplusUsers > 0) hwRows.push({ c:`${tsplusUsers} TSplus users × 0.5GB / 0.25 core`, r:'Remote session overhead', ram:ramTsplus, cpu:coreTsplus });
+
+  document.getElementById('spec-hw-tbody').innerHTML = hwRows.map(r=>`
+    <tr>
+      <td><strong>${r.c}</strong></td>
+      <td>${r.r}</td>
+      <td class="num">${r.ram % 1 === 0 ? r.ram : r.ram.toFixed(2)}GB</td>
+      <td class="num">${r.cpu % 1 === 0 ? r.cpu : r.cpu.toFixed(2)}</td>
+    </tr>`).join('');
+
+  document.getElementById('spec-ram-raw').textContent = ramRaw.toFixed(1) + 'GB';
+  document.getElementById('spec-cpu-raw').textContent = coreRaw.toFixed(1);
+  document.getElementById('spec-formula-note').textContent =
+    `RAM rounded up from ${ramRaw.toFixed(1)}GB to next standard size (${ramFinal}GB). Cores rounded up from ${coreRaw.toFixed(1)} to next even number (${coreFinal}). These are minimums — always recommend the next tier up for production workloads.`;
+
+  const hwWarn = document.getElementById('spec-hw-warning');
+  if (ramFinal >= 64 || coreFinal >= 12) {
+    hwWarn.style.display = 'block';
+    hwWarn.innerHTML = `<strong>Large deployment.</strong> This spec (${ramFinal}GB RAM, ${coreFinal} cores) is a substantial server. Consider recommending the client discuss hardware sizing with their IT team or a server vendor. Also confirm whether virtualisation is in scope — Hyper-V on Windows Server Standard covers 2 VMs.`;
+  } else { hwWarn.style.display = 'none'; }
+
+  // ── UPDATE SQL ──
+  document.getElementById('spec-sql-tbody').innerHTML = `
+    <tr><td><strong>Physical server cores</strong></td><td>Minimum 4 cores required for SQL Standard</td><td class="num">${sqlCores}</td></tr>
+    <tr><td><strong>SQL Standard 2-core packs required</strong></td><td>${sqlCores} cores ÷ 2</td><td class="num">${sqlPacks} packs</td></tr>
+    <tr><td><strong>Coverage</strong></td><td>Per-core licensing covers all users &amp; devices — no SQL CALs needed</td><td class="num">✓</td></tr>
+    <tr><td><strong>Remote venue SQL access</strong></td><td>SmartController connections covered under per-core licence</td><td class="num">✓</td></tr>`;
+
+  // ── UPDATE WINDOWS SERVER ──
+  const wsPacksNeeded = Math.max(8, Math.ceil(coreFinal / 2));
+  const wsWarn = document.getElementById('spec-ws-warning');
+  wsWarn.style.display = 'none';
+
+  document.getElementById('ws-standard-detail').innerHTML =
+    `${wsPacksNeeded} × 2-core packs required (minimum 8 packs = 16 core licences per server).<br>Covers bare metal + up to 2 Hyper-V VMs.`;
+  document.getElementById('ws-standard-cost').textContent =
+    `${wsPacksNeeded} × 2-core packs — confirm current pricing with Microsoft reseller`;
+
+  document.getElementById('ws-datacenter-detail').innerHTML =
+    `Same ${wsPacksNeeded} × 2-core packs, but Datacenter edition.<br>Covers bare metal + unlimited Hyper-V VMs. Only worthwhile if running 3+ VMs.`;
+  document.getElementById('ws-datacenter-cost').textContent =
+    `~3–4× the cost of Standard. Not recommended unless virtualisation is in scope.`;
+
+  if (coreFinal > 16) {
+    wsWarn.style.display = 'block';
+    wsWarn.innerHTML = `<strong>Multi-socket server likely.</strong> ${coreFinal} cores suggests a 2-CPU server. Windows Server Standard requires separate licences per CPU socket — ensure the reseller quotes per-socket.`;
+  }
+
+  // ── TSPLUS TIERS ──
+  const tiers = [
+    { name:'Starter',    conc:5   },
+    { name:'Business',   conc:10  },
+    { name:'Corporate',  conc:25  },
+    { name:'Enterprise', conc:50  },
+    { name:'Unlimited',  conc:999 },
+  ];
+  const tsplusRec = tsplusUsers > 0 ? (tiers.find(t => t.conc >= tsplusUsers) || tiers[tiers.length-1]) : null;
+  const nextUp    = tsplusRec ? tiers[tiers.indexOf(tsplusRec)+1] : null;
+
+  // ── UPDATE TSPLUS ──
+  const tsplusDiv = document.getElementById('spec-tsplus-result');
+  if (tsplusUsers === 0) {
+    tsplusDiv.innerHTML = `<div class="card"><p style="color:var(--ink3);font-style:italic">No TSplus/RDP users entered in the Calculator tab. If remote access is needed, go back to the Calculator and add remote users — the spec will update automatically.</p></div>`;
+  } else {
+    tsplusDiv.innerHTML = `
+      <div class="spec-table-wrap" style="margin-bottom:14px">
+        <div class="spec-breakdown-title">TSplus tier recommendation</div>
+        <table class="tbl">
+          <thead><tr><th>Tier</th><th>Concurrent users covered</th><th>Fits your ${tsplusUsers} user${tsplusUsers!==1?'s':''}?</th></tr></thead>
+          <tbody>
+            ${tiers.map(t=>{
+              const fits = t.conc >= tsplusUsers;
+              const isRec = tsplusRec && t.name === tsplusRec.name;
+              return `<tr style="${isRec?'background:var(--purple-l);font-weight:600':''}">
+                <td><strong>${t.name}</strong>${isRec?' <span class="tier-badge tier-ok">Recommended</span>':''}</td>
+                <td>${t.conc === 999 ? 'Unlimited' : 'Up to '+t.conc}</td>
+                <td><span class="tier-badge ${fits?'tier-ok':'tier-bad'}">${fits?'Yes':'No'}</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box" style="margin-bottom:0">
+        <strong>Recommended: TSplus ${tsplusRec.name}</strong> — covers up to ${tsplusRec.conc === 999 ? 'unlimited' : tsplusRec.conc} concurrent users.
+        ${nextUp ? `Consider <strong>${nextUp.name}</strong> if you expect growth beyond ${tsplusRec.conc} concurrent users.` : ''}
+        TSplus is licensed separately from Windows Server RDS CALs — confirm with your TSplus reseller whether RDS CALs are also required for your setup.
+      </div>`;
+  }
+
+  // ── WRITE TO SUMMARY SPEC SECTION ──
+  const sg = id => document.getElementById(id);
+  if (sg('sum-spec-ram')) sg('sum-spec-ram').textContent = ramFinal + 'GB';
+  if (sg('sum-spec-cpu')) sg('sum-spec-cpu').textContent = coreFinal;
+  if (sg('sum-spec-tbody')) {
+    const tsplusLine = tsplusRec
+      ? `TSplus ${tsplusRec.name} — up to ${tsplusRec.conc === 999 ? 'unlimited' : tsplusRec.conc} concurrent users`
+      : 'Not required (no remote users)';
+    sg('sum-spec-tbody').innerHTML = `
+      <tr><td>SQL Server Standard</td><td>${sqlPacks} × 2-core packs (${sqlCores} cores, per-core licensing)</td></tr>
+      <tr><td>Windows Server Standard</td><td>${wsPacksNeeded} × 2-core packs (minimum 8 packs per server)</td></tr>
+      <tr><td>TSplus</td><td>${tsplusLine}</td></tr>`;
+  }
+}
+
+// ── STATE PERSISTENCE ──
+function getState() {
+  return {
+    cn: gs('client-name'), bdm: gs('bdm-name'), date: gs('doc-date'),
+    hoPos: gv('ho-pos'), hoBo: gv('ho-bo'), hoPde: gv('ho-pde'), hoRem: gv('ho-remote'),
+    hoRType: gr('ho-rtype'),
+    sTotal: gv('spec-users-total'), sConc: gv('spec-users-concurrent'),
+    sVenues: gv('spec-venues'), sTsplus: gv('spec-tsplus'),
+    venues: venues.map(v => ({ id: v.id, name: v.name, ws: gv('vws-' + v.id), wstype: gr('vwstype-' + v.id) }))
+  };
+}
+
+function saveState() {
+  try { localStorage.setItem('bepoz-cal', JSON.stringify(getState())); } catch(e) {}
+}
+
+function applyState(d) {
+  const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  const sr = (name, val) => { const el = document.querySelector(`input[name="${name}"][value="${val}"]`); if (el) el.checked = true; };
+  sv('client-name', d.cn || '');
+  sv('bdm-name', d.bdm || '');
+  if (d.date) sv('doc-date', d.date);
+  sv('ho-pos', d.hoPos || 0);
+  sv('ho-bo', d.hoBo || 0);
+  sv('ho-pde', d.hoPde || 0);
+  sv('ho-remote', d.hoRem || 0);
+  if (d.hoRType) sr('ho-rtype', d.hoRType);
+  sv('spec-users-total', d.sTotal || 1);
+  sv('spec-users-concurrent', d.sConc || 1);
+  sv('spec-venues', d.sVenues || 0);
+  sv('spec-tsplus', d.sTsplus || 0);
+  if (d.venues && d.venues.length) {
+    d.venues.forEach(vd => {
+      venueCounter = vd.id - 1;
+      addVenue(true); // silent — no render per venue
+      const el = id => document.getElementById(id);
+      if (el('vname-' + vd.id)) el('vname-' + vd.id).value = vd.name || '';
+      if (el('vws-' + vd.id))   el('vws-' + vd.id).value   = vd.ws || 0;
+      if (vd.wstype) sr('vwstype-' + vd.id, vd.wstype);
+      if ((vd.ws || 0) > 0) {
+        const wrap = document.getElementById('vwstype-wrap-' + vd.id);
+        if (wrap) wrap.style.display = 'block';
+      }
+      const v = venues.find(v => v.id === vd.id);
+      if (v) v.name = vd.name || '';
+    });
+  }
+}
+
+function loadState() {
+  try {
+    const hash = window.location.hash;
+    if (hash.startsWith('#data=')) {
+      applyState(JSON.parse(decodeURIComponent(atob(hash.slice(6)))));
+      return;
+    }
+    const raw = localStorage.getItem('bepoz-cal');
+    if (raw) applyState(JSON.parse(raw));
+  } catch(e) {}
+}
+
+// ── SHARE + COPY ──
+function shareURL() {
+  const encoded = btoa(encodeURIComponent(JSON.stringify(getState())));
+  const url = location.href.split('#')[0] + '#data=' + encoded;
+  navigator.clipboard.writeText(url)
+    .then(() => showToast('Link copied to clipboard'))
+    .catch(() => prompt('Copy this link:', url));
+}
+
+function copyTotal() {
+  const total = document.getElementById('total-num').textContent;
+  const btn = document.getElementById('copy-total-btn');
+  navigator.clipboard.writeText(total).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function showToast(msg) {
+  let t = document.getElementById('_toast');
+  if (!t) { t = document.createElement('div'); t.id = '_toast'; t.className = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function printSummary() {
+  if (!gs('client-name') && !confirm('Client name is empty. Print anyway?')) return;
+  if (!document.getElementById('doc-date').value) {
+    document.getElementById('doc-date').value = new Date().toLocaleDateString('en-AU',{year:'numeric',month:'long',day:'numeric'});
+    render();
+  }
+  window.print();
+}
+
+// ── INIT ──
+_skipSave = true;
+loadState();
+_skipSave = false;
+if (!document.getElementById('doc-date').value) {
+  document.getElementById('doc-date').value = new Date().toLocaleDateString('en-AU',{year:'numeric',month:'long',day:'numeric'});
+}
+render();
+</script>
+</body>
+</html>
