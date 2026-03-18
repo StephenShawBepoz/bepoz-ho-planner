@@ -266,12 +266,42 @@ strong{color:var(--ink);font-weight:600}
   .sum-hdr{page-break-after:avoid}
   .sum-foot{padding:10px 28px}
 }
+/* ── VALIDATION BANNER ── */
+.validation-banner{background:var(--warn-l);border:1.5px solid #f0c878;border-radius:var(--r);padding:11px 17px;font-size:13px;color:var(--warn);line-height:1.6;margin-bottom:14px;display:none}
+.validation-banner strong{color:var(--warn)}
+
+/* ── DRAG REORDER ── */
+.drag-handle{cursor:grab;color:var(--ink3);font-size:18px;padding:0 6px 0 2px;user-select:none;line-height:1;flex-shrink:0;transition:color 0.1s}
+.drag-handle:hover{color:var(--purple)}
+.drag-handle:active{cursor:grabbing}
+.venue-block.dragging{opacity:0.35;border-style:dashed}
+.venue-block.drag-over{border-color:var(--purple);box-shadow:0 0 0 3px rgba(103,58,182,0.18)}
+
+/* ── SAVED CALCULATIONS ── */
+.saves-panel{margin-top:28px}
+.saves-empty{font-size:13px;color:var(--ink3);font-style:italic;padding:10px 0}
+.save-item{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--card);border:1px solid var(--rule);border-radius:8px;margin-bottom:6px;font-size:13px}
+.save-item-name{flex:1;font-weight:600;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.save-item-date{font-size:11px;color:var(--ink3);flex-shrink:0}
+.save-item-btn{background:none;border:1px solid var(--rule2);border-radius:6px;padding:4px 10px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.save-item-btn:hover{border-color:var(--purple);color:var(--purple)}
+.save-item-del{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:17px;padding:2px 4px;line-height:1;border-radius:4px;transition:color 0.15s;flex-shrink:0}
+.save-item-del:hover{color:#c0392b}
+
+/* ── EXPLAINER CALLOUT ── */
+#explainer-callout{margin-bottom:20px}
+
 @media(max-width:600px){
   .wrap{padding:20px 16px 60px}
   .hdr{padding:0 16px}
-  .tab-bar-inner{padding:0 16px}
+  .tab-bar-inner{padding:0 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tab-bar-inner::-webkit-scrollbar{display:none}
   .sum-body,.sum-hdr{padding:20px}
   .sum-foot{padding:12px 20px}
+}
+@media(min-width:601px){
+  .tab-bar-inner{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tab-bar-inner::-webkit-scrollbar{display:none}
 }
 </style>
 </head>
@@ -411,14 +441,27 @@ strong{color:var(--ink);font-weight:600}
       </table>
     </div>
     <div style="margin-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px">
-      <button class="btn btn-out" onclick="clearAll()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
-        New calculation
-      </button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-out" onclick="clearAll()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+          New calculation
+        </button>
+        <button class="btn btn-out" onclick="saveNamedPrompt()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save as…
+        </button>
+      </div>
       <button class="btn btn-pri" onclick="showTab('summary')">
         Generate client summary
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
+    </div>
+
+    <div class="saves-panel" id="saves-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="sec-label" style="margin-bottom:0">Saved calculations</div>
+      </div>
+      <div id="saves-list"><div class="saves-empty">No saved calculations yet. Use "Save as…" to store a named snapshot.</div></div>
     </div>
   </section>
 
@@ -559,6 +602,8 @@ strong{color:var(--ink);font-weight:600}
 <div id="pane-explainer" class="tab-pane">
 <div class="wrap">
 
+  <div id="explainer-callout"></div>
+
   <section>
     <div class="sec-label">The basics</div>
     <h2>What is a CAL?</h2>
@@ -617,6 +662,10 @@ strong{color:var(--ink);font-weight:600}
 <div id="pane-summary" class="tab-pane">
 <div class="wrap">
 
+  <div class="validation-banner" id="sum-validation-banner">
+    <strong>Almost there.</strong> <span id="sum-validation-msg">Enter a client name and at least one device to generate a complete summary.</span>
+  </div>
+
   <div class="sum-actions">
     <button class="btn btn-out" onclick="showTab('calculator')">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -625,6 +674,10 @@ strong{color:var(--ink);font-weight:600}
     <button class="btn btn-out" onclick="copyAsText()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       Copy as text
+    </button>
+    <button class="btn btn-out" onclick="exportCSV()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export CSV
     </button>
     <button class="btn btn-out" onclick="shareURL()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -709,6 +762,7 @@ strong{color:var(--ink);font-weight:600}
       <div style="text-align:right">
         <div id="sum-ref" style="font-weight:600;margin-bottom:2px"></div>
         <div id="sum-foot-date"></div>
+        <div id="sum-ver" style="margin-top:2px;font-size:10px;color:var(--ink3);opacity:0.6"></div>
       </div>
     </div>
   </div>
@@ -729,6 +783,7 @@ function addVenue(silent) {
   div.id = 'vblock-' + id;
   div.innerHTML = `
     <div class="venue-hdr">
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="venue-num" id="vnum-${id}">${venues.length}</div>
       <input class="venue-name-inp" id="vname-${id}" type="text" placeholder="Venue name (e.g. Epping Plaza Hotel)" value="" oninput="updateName(${id},this.value)">
       <span class="venue-pill" id="vpill-${id}">1 CAL</span>
@@ -760,6 +815,35 @@ function addVenue(silent) {
   document.getElementById('vws-' + id).addEventListener('input', function() {
     const wrap = document.getElementById('vwstype-wrap-' + id);
     wrap.style.display = parseInt(this.value) > 0 ? 'block' : 'none';
+  });
+
+  // drag-to-reorder
+  div.draggable = true;
+  div.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', String(id));
+    setTimeout(() => div.classList.add('dragging'), 0);
+  });
+  div.addEventListener('dragend', () => div.classList.remove('dragging'));
+  div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('drag-over'); });
+  div.addEventListener('dragleave', e => { if (!div.contains(e.relatedTarget)) div.classList.remove('drag-over'); });
+  div.addEventListener('drop', e => {
+    e.preventDefault();
+    div.classList.remove('drag-over');
+    const fromId = parseInt(e.dataTransfer.getData('text/plain'));
+    const toId = id;
+    if (fromId === toId) return;
+    const fromIdx = venues.findIndex(v => v.id === fromId);
+    const toIdx   = venues.findIndex(v => v.id === toId);
+    if (fromIdx < 0 || toIdx < 0) return;
+    const [moved] = venues.splice(fromIdx, 1);
+    venues.splice(toIdx, 0, moved);
+    const list = document.getElementById('venues-list');
+    const fromEl = document.getElementById('vblock-' + fromId);
+    const toEl   = document.getElementById('vblock-' + toId);
+    if (fromIdx < toIdx) list.insertBefore(fromEl, toEl.nextSibling);
+    else list.insertBefore(fromEl, toEl);
+    venues.forEach((v, i) => { const el = document.getElementById('vnum-' + v.id); if (el) el.textContent = i + 1; });
+    render();
   });
 
   if (!silent) render();
@@ -868,6 +952,41 @@ function render() {
       <td colspan="2"><strong>Total CALs</strong></td><td>${total}</td>
     </tr>`;
   }
+
+  // validation banner
+  const banner = g('sum-validation-banner');
+  if (banner) {
+    const msgs = [];
+    if (!cn) msgs.push('Enter a client name');
+    if (total === 0) msgs.push('add at least one device or venue');
+    if (msgs.length) {
+      banner.style.display = 'block';
+      g('sum-validation-msg').textContent = msgs.join(' and ') + ' before printing.';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
+  // version stamp
+  if (g('sum-ver')) g('sum-ver').textContent = `Bepoz HO Deployment Planner ${VERSION}`;
+
+  // explainer callout
+  const ec = g('explainer-callout');
+  if (ec) {
+    if (total > 0) {
+      const venueCount = venues.length;
+      ec.innerHTML = `<div class="info-box" style="margin-bottom:0">
+        <strong>Based on your current config:</strong> ${total} CAL${total!==1?'s':''} required across ${venueCount} venue${venueCount!==1?'s':''}.
+        ${hoRem > 0 ? `Remote users are on <strong>${hoRType==='device'?'Device':'User'} CALs</strong> — ${hoRType==='user'?'User CALs are recommended for roaming staff.':'Device CALs suit shared fixed terminals.'}` : ''}
+        <span style="margin-left:6px"><button class="btn btn-out" style="font-size:11px;padding:4px 10px;display:inline-flex" onclick="showTab('calculator')">← Back to calculator</button></span>
+      </div>`;
+    } else {
+      ec.innerHTML = '';
+    }
+  }
+
+  // saved calculations list
+  renderSaves();
 
   if (!_skipSave) saveState();
 }
@@ -1219,6 +1338,92 @@ function printSummary() {
     render();
   }
   window.print();
+}
+
+// ── VERSION ──
+const VERSION = 'v2.2';
+
+// ── NAMED SAVES ──
+const SAVES_KEY = 'bepoz-saves';
+
+function getSaves() {
+  try { return JSON.parse(localStorage.getItem(SAVES_KEY)) || []; } catch(e) { return []; }
+}
+
+function saveNamedPrompt() {
+  const cn = gs('client-name');
+  const suggested = cn || 'Unnamed';
+  const name = prompt('Save this calculation as:', suggested);
+  if (!name) return;
+  const saves = getSaves();
+  const existing = saves.findIndex(s => s.name === name);
+  const entry = { name, date: new Date().toLocaleDateString('en-AU', {day:'2-digit',month:'short',year:'numeric'}), state: getState() };
+  if (existing >= 0) saves[existing] = entry;
+  else saves.unshift(entry);
+  try { localStorage.setItem(SAVES_KEY, JSON.stringify(saves.slice(0, 20))); } catch(e) {}
+  showToast(`"${name}" saved`);
+  renderSaves();
+}
+
+function loadSaved(name) {
+  const saves = getSaves();
+  const entry = saves.find(s => s.name === name);
+  if (!entry) return;
+  if (!confirm(`Load "${name}"? Current unsaved data will be replaced.`)) return;
+  venues = [];
+  venueCounter = 0;
+  document.getElementById('venues-list').innerHTML = '';
+  _skipSave = true;
+  applyState(entry.state);
+  _skipSave = false;
+  render();
+  showToast(`"${name}" loaded`);
+}
+
+function deleteSaved(name) {
+  if (!confirm(`Delete saved calculation "${name}"?`)) return;
+  const saves = getSaves().filter(s => s.name !== name);
+  try { localStorage.setItem(SAVES_KEY, JSON.stringify(saves)); } catch(e) {}
+  renderSaves();
+}
+
+function renderSaves() {
+  const el = document.getElementById('saves-list');
+  if (!el) return;
+  const saves = getSaves();
+  if (!saves.length) {
+    el.innerHTML = '<div class="saves-empty">No saved calculations yet. Use "Save as…" to store a named snapshot.</div>';
+    return;
+  }
+  el.innerHTML = saves.map(s => `
+    <div class="save-item">
+      <div class="save-item-name" title="${s.name}">${s.name}</div>
+      <div class="save-item-date">${s.date}</div>
+      <button class="save-item-btn" onclick="loadSaved(${JSON.stringify(s.name)})">Load</button>
+      <button class="save-item-del" onclick="deleteSaved(${JSON.stringify(s.name)})" title="Delete">×</button>
+    </div>`).join('');
+}
+
+// ── CSV EXPORT ──
+function exportCSV() {
+  const { lines, total } = calcAll();
+  const cn   = gs('client-name') || 'Bepoz';
+  const date = gs('doc-date')    || new Date().toLocaleDateString('en-AU');
+  const esc  = v => `"${String(v).replace(/"/g,'""')}"`;
+  const rows = [
+    ['Item', 'Licence Type', 'Where Licensed', 'CALs'],
+    ...lines.map(l => [l.label, l.type, l.where, l.cals]),
+    ['', '', 'TOTAL', total]
+  ].map(r => r.map(esc).join(','));
+  const csv  = rows.join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `bepoz-cals-${cn.replace(/[^a-zA-Z0-9]+/g,'-')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV downloaded');
 }
 
 // ── DARK MODE ──
