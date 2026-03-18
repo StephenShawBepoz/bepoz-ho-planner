@@ -36,7 +36,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-h
 header{background:var(--grad1);color:#fff;padding:32px 0 0;position:relative;overflow:hidden}
 header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(3,169,244,0.18) 0%,transparent 60%);pointer-events:none}
 .hdr{max-width:860px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
-.hdr-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.hdr-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.hdr-brand-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
 .oolio-mark{font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#fff;display:flex;align-items:center;gap:4px}
 .hdr-sep{width:1px;height:20px;background:rgba(255,255,255,0.3)}
 .hdr-prod{font-size:12px;font-weight:500;color:rgba(255,255,255,0.65);letter-spacing:0.02em}
@@ -220,6 +221,36 @@ strong{color:var(--ink);font-weight:600}
 .sum-spec-val{font-size:22px;font-weight:800;line-height:1;letter-spacing:-0.02em}
 .sum-spec-lbl{font-size:11px;opacity:0.7;margin-top:2px;font-weight:500}
 
+/* ── DARK MODE ── */
+[data-theme="dark"]{
+  --purple:#9b6fe0;
+  --purple-d:#cdb4f5;
+  --purple-l:#2a1f40;
+  --purple-m:#b794ef;
+  --purple-border:#4a3570;
+  --blue:#7986cb;
+  --blue-l:#1e2254;
+  --cyan:#29b6f6;
+  --ink:#ede9f7;
+  --ink2:#bbb6cc;
+  --ink3:#7a748e;
+  --rule:#2e2a3d;
+  --rule2:#3d3756;
+  --bg:#13111c;
+  --card:#1e1a2e;
+  --green:#5ab785;--green-l:#112d1e;
+  --warn:#f0c050;--warn-l:#2d1f00;
+}
+[data-theme="dark"] .ho-block{background:linear-gradient(135deg,#241840 0%,#1e1538 100%)}
+[data-theme="dark"] .tier-bad{background:#2d0f0f;color:#f08080}
+[data-theme="dark"] .warning-box{border-color:#6b4e00}
+[data-theme="dark"] .venue-name-inp{color:var(--ink)}
+[data-theme="dark"] .field input[type=number],[data-theme="dark"] .field input[type=text]{color:var(--ink)}
+
+/* ── DARK TOGGLE ── */
+.dark-toggle{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:20px;padding:5px 12px 5px 10px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
+.dark-toggle:hover{background:rgba(255,255,255,0.22)}
+
 @media print{
   body{background:#fff}
   .tab-bar,.sum-actions,#pane-calculator,#pane-explainer,#pane-serverspec{display:none!important}
@@ -249,11 +280,16 @@ strong{color:var(--ink);font-weight:600}
 <header>
   <div class="hdr">
     <div class="hdr-brand">
-      <div class="oolio-mark">
-        <svg width="74" height="19" viewBox="0 0 926 242" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M805,342 C871.826455,342 926,396.173545 926,463 C926,529.826455 871.826455,584 805,584 C738.173545,584 684,529.826455 684,463 C684,396.173545 738.173545,342 805,342 Z M805,423 C782.90861,423 765,440.90861 765,463 C765,485.09139 782.90861,503 805,503 C827.09139,503 845,485.09139 845,463 C845,440.90861 827.09139,423 805,423 Z M604,342 L664,342 C669.522847,342 674,346.477153 674,352 L674,574 C674,579.522847 669.522847,584 664,584 L604,584 C598.477153,584 594,579.522847 594,574 L594,352 C594,346.477153 598.477153,342 604,342 Z M424,584 C418.477153,584 414,579.522847 414,574 L414,352 C414,346.477153 418.477153,342 424,342 L484,342 C489.522847,342 494,346.477153 494,352 L494,504 L574,504 C579.522847,504 584,508.477153 584,514 L584,574 C584,579.522847 579.522847,584 574,584 L424,584 Z M283,342 C349.826455,342 404,396.173545 404,463 C404,529.826455 349.826455,584 283,584 C251.847179,584 223.444076,572.227053 201.997096,552.887563 C180.555042,572.227418 152.152338,584 121,584 C54.1735453,584 0,529.826455 0,463 C0,396.173545 54.1735453,342 121,342 C152.152821,342 180.555924,353.772947 202.002904,373.112437 C223.444958,353.772582 251.847662,342 283,342 Z M283,423 C260.90861,423 243,440.90861 243,463 C243,485.09139 260.90861,503 283,503 C305.09139,503 323,485.09139 323,463 C323,440.90861 305.09139,423 283,423 Z M121,423 C98.90861,423 81,440.90861 81,463 C81,485.09139 98.90861,503 121,503 C143.09139,503 161,485.09139 161,463 C161,440.90861 143.09139,423 121,423 Z" transform="translate(0,-342)"/></svg>
+      <div class="hdr-brand-left">
+        <div class="oolio-mark">
+          <svg width="74" height="19" viewBox="0 0 926 242" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M805,342 C871.826455,342 926,396.173545 926,463 C926,529.826455 871.826455,584 805,584 C738.173545,584 684,529.826455 684,463 C684,396.173545 738.173545,342 805,342 Z M805,423 C782.90861,423 765,440.90861 765,463 C765,485.09139 782.90861,503 805,503 C827.09139,503 845,485.09139 845,463 C845,440.90861 827.09139,423 805,423 Z M604,342 L664,342 C669.522847,342 674,346.477153 674,352 L674,574 C674,579.522847 669.522847,584 664,584 L604,584 C598.477153,584 594,579.522847 594,574 L594,352 C594,346.477153 598.477153,342 604,342 Z M424,584 C418.477153,584 414,579.522847 414,574 L414,352 C414,346.477153 418.477153,342 424,342 L484,342 C489.522847,342 494,346.477153 494,352 L494,504 L574,504 C579.522847,504 584,508.477153 584,514 L584,574 C584,579.522847 579.522847,584 574,584 L424,584 Z M283,342 C349.826455,342 404,396.173545 404,463 C404,529.826455 349.826455,584 283,584 C251.847179,584 223.444076,572.227053 201.997096,552.887563 C180.555042,572.227418 152.152338,584 121,584 C54.1735453,584 0,529.826455 0,463 C0,396.173545 54.1735453,342 121,342 C152.152821,342 180.555924,353.772947 202.002904,373.112437 C223.444958,353.772582 251.847662,342 283,342 Z M283,423 C260.90861,423 243,440.90861 243,463 C243,485.09139 260.90861,503 283,503 C305.09139,503 323,485.09139 323,463 C323,440.90861 305.09139,423 283,423 Z M121,423 C98.90861,423 81,440.90861 81,463 C81,485.09139 98.90861,503 121,503 C143.09139,503 161,485.09139 161,463 C161,440.90861 143.09139,423 121,423 Z" transform="translate(0,-342)"/></svg>
+        </div>
+        <div class="hdr-sep"></div>
+        <div class="hdr-prod">Bepoz · HO Deployment Planner<span class="saved-dot" id="saved-dot">Saved</span></div>
       </div>
-      <div class="hdr-sep"></div>
-      <div class="hdr-prod">Bepoz · HO Deployment Planner<span class="saved-dot" id="saved-dot">Saved</span></div>
+      <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">
+        <span id="dark-icon">☀️</span><span id="dark-label">Light</span>
+      </button>
     </div>
     <h1>Head Office <em>Deployment Planner</em></h1>
     <p>Calculate CAL requirements, size the HO server, and generate a customer-ready summary.</p>
@@ -1185,7 +1221,28 @@ function printSummary() {
   window.print();
 }
 
+// ── DARK MODE ──
+function applyTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  const icon = document.getElementById('dark-icon');
+  const lbl  = document.getElementById('dark-label');
+  if (icon) icon.textContent = dark ? '🌙' : '☀️';
+  if (lbl)  lbl.textContent  = dark ? 'Dark' : 'Light';
+}
+function toggleDark() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+  try { localStorage.setItem('bepoz-theme', !isDark ? 'dark' : 'light'); } catch(e) {}
+}
+
 // ── INIT ──
+(function(){
+  try {
+    const t = localStorage.getItem('bepoz-theme');
+    if (t) { applyTheme(t === 'dark'); }
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { applyTheme(true); }
+  } catch(e) {}
+})();
 _skipSave = true;
 loadState();
 _skipSave = false;
