@@ -93,20 +93,11 @@ strong{color:var(--ink);font-weight:600}
 .field-section-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--purple-m);margin-bottom:8px}
 .block-note{font-size:12px;color:var(--ink3);margin-top:12px;padding-top:12px;border-top:1px solid var(--purple-border);line-height:1.6}
 
-/* ── VENUE BLOCKS ── */
-.venue-block{background:var(--card);border:1.5px solid var(--rule);border-radius:var(--r);margin-bottom:10px;box-shadow:0 1px 4px rgba(103,58,182,0.05);overflow:hidden;transition:border-color 0.15s}
-.venue-block:focus-within{border-color:var(--purple-border)}
-.venue-hdr{display:flex;align-items:center;gap:11px;padding:11px 16px;background:var(--bg);border-bottom:1px solid var(--rule)}
+/* ── VENUE SHARED ── */
 .venue-num{width:24px;height:24px;border-radius:50%;background:var(--grad1);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.venue-name-inp{flex:1;background:none;border:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--ink);outline:none;min-width:0}
-.venue-name-inp::placeholder{color:var(--ink3);font-weight:400}
 .venue-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--purple-l);color:var(--purple);white-space:nowrap}
 .venue-rm{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:20px;line-height:1;padding:1px 4px;border-radius:4px;transition:color 0.15s}
 .venue-rm:hover{color:#c0392b}
-.venue-body{padding:14px 16px}
-.sc-badge{display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--purple-l);border-radius:7px;margin-bottom:12px;font-size:13px;color:var(--purple);font-weight:500;border:1px solid var(--purple-border)}
-.venue-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:10px}
-.venue-note{font-size:12px;color:var(--ink3);margin-top:10px;padding-top:10px;border-top:1px solid var(--rule);line-height:1.6}
 
 .add-btn{display:inline-flex;align-items:center;gap:7px;background:none;border:1.5px dashed var(--purple-border);border-radius:8px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--purple);cursor:pointer;transition:all 0.15s}
 .add-btn:hover{background:var(--purple-l);border-color:var(--purple)}
@@ -281,12 +272,19 @@ strong{color:var(--ink);font-weight:600}
 .validation-banner{background:var(--warn-l);border:1.5px solid #f0c878;border-radius:var(--r);padding:11px 17px;font-size:13px;color:var(--warn);line-height:1.6;margin-bottom:14px;display:none}
 .validation-banner strong{color:var(--warn)}
 
-/* ── DRAG REORDER ── */
-.drag-handle{cursor:grab;color:var(--ink3);font-size:18px;padding:0 6px 0 2px;user-select:none;line-height:1;flex-shrink:0;transition:color 0.1s}
-.drag-handle:hover{color:var(--purple)}
-.drag-handle:active{cursor:grabbing}
-.venue-block.dragging{opacity:0.35;border-style:dashed}
-.venue-block.drag-over{border-color:var(--purple);box-shadow:0 0 0 3px rgba(103,58,182,0.18)}
+/* ── VENUE TABLE ── */
+.venue-table{background:var(--card);border:1.5px solid var(--rule);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(103,58,182,0.05);margin-bottom:10px}
+.venue-table-hdr{display:grid;grid-template-columns:36px 1fr 110px 72px 36px;padding:8px 14px;background:var(--bg);border-bottom:2px solid var(--rule);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3);align-items:center;gap:8px}
+.venue-row{display:grid;grid-template-columns:36px 1fr 110px 72px 36px;padding:8px 14px;border-bottom:1px solid var(--rule);align-items:center;gap:8px;transition:background 0.1s;cursor:grab}
+#venues-list .venue-row:last-child{border-bottom:none}
+.venue-row:focus-within{background:#faf7ff;cursor:default}
+.venue-row-name{background:none;border:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink);outline:none;width:100%;padding:0 4px;min-width:0;cursor:text}
+.venue-row-name::placeholder{color:var(--ink3);font-weight:400}
+.venue-row-ws{background:var(--bg);border:1.5px solid var(--rule2);border-radius:6px;padding:5px 8px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);width:80px;text-align:center;-moz-appearance:textfield;outline:none;transition:border-color 0.15s,box-shadow 0.15s;cursor:text}
+.venue-row-ws::-webkit-inner-spin-button{-webkit-appearance:none}
+.venue-row-ws:focus{border-color:var(--purple);background:var(--card);box-shadow:0 0 0 3px rgba(103,58,182,0.1)}
+.venue-row.dragging{opacity:0.35}
+.venue-row.drag-over{outline:2px solid var(--purple);outline-offset:-2px;background:var(--purple-l)}
 
 /* ── SAVED CALCULATIONS ── */
 .saves-panel{margin-top:28px}
@@ -412,8 +410,17 @@ strong{color:var(--ink);font-weight:600}
   <section>
     <div class="step-row"><div class="step-badge">3</div><div class="sec-label">Remote venues</div></div>
     <h2>Remote venues</h2>
-    <p style="margin-bottom:14px">Each venue has exactly one SmartController connecting to HO via VPN — this is always <strong>1 CAL per venue</strong>. If a venue also has local back-office workstations accessing Bepoz, add those below.</p>
-    <div id="venues-list"></div>
+    <p style="margin-bottom:14px">Each venue always includes one SmartController (1 Device CAL via VPN). Enter any back-office workstations that also access Bepoz at each venue.</p>
+    <div class="venue-table">
+      <div class="venue-table-hdr">
+        <span></span>
+        <span>Venue name</span>
+        <span style="text-align:center">Back-office WS</span>
+        <span style="text-align:right">CALs</span>
+        <span></span>
+      </div>
+      <div id="venues-list"></div>
+    </div>
     <button class="add-btn" onclick="addVenue()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add venue
@@ -830,43 +837,15 @@ function addVenue(silent) {
   venues.push({ id, name: '' });
   const list = document.getElementById('venues-list');
   const div = document.createElement('div');
-  div.className = 'venue-block';
+  div.className = 'venue-row';
   div.id = 'vblock-' + id;
   div.innerHTML = `
-    <div class="venue-hdr">
-      <div class="drag-handle" title="Drag to reorder">⠿</div>
-      <div class="venue-num" id="vnum-${id}">${venues.length}</div>
-      <input class="venue-name-inp" id="vname-${id}" type="text" placeholder="Venue name (e.g. Epping Plaza Hotel)" value="" oninput="updateName(${id},this.value)">
-      <span class="venue-pill" id="vpill-${id}">1 CAL</span>
-      <button class="venue-rm" onclick="removeVenue(${id})" title="Remove venue">×</button>
-    </div>
-    <div class="venue-body">
-      <div class="sc-badge">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        SmartController — 1 CAL (VPN connection to HO, always included)
-      </div>
-      <div class="venue-grid">
-        <div class="field">
-          <label>Back-office workstations</label>
-          <input type="number" id="vws-${id}" min="0" value="0" oninput="render()">
-        </div>
-      </div>
-      <div id="vwstype-wrap-${id}" style="display:none;margin-top:8px">
-        <div class="field-section-label" style="margin-bottom:6px;color:var(--ink3)">Workstation CAL type</div>
-        <div class="radio-row">
-          <label class="radio-opt"><input type="radio" name="vwstype-${id}" value="user" checked onchange="render()"> User CALs <span class="radio-sub">— 1 per person</span></label>
-          <label class="radio-opt"><input type="radio" name="vwstype-${id}" value="device" onchange="render()"> Device CALs <span class="radio-sub">— 1 per device</span></label>
-        </div>
-      </div>
-      <div class="venue-note">SmartPOS Mobile and Kiosk at this venue do <strong>not</strong> require a CAL. If workstations &gt; 0, a <strong>User or Device CAL</strong> option will appear above — User CAL is recommended for most setups.</div>
-    </div>`;
+    <div class="venue-num" id="vnum-${id}">${venues.length}</div>
+    <input class="venue-row-name" id="vname-${id}" type="text" placeholder="e.g. Epping Plaza Hotel" value="" oninput="updateName(${id},this.value)">
+    <input class="venue-row-ws" type="number" id="vws-${id}" min="0" value="0" oninput="render()" style="justify-self:center">
+    <span class="venue-pill" id="vpill-${id}" style="justify-self:end">1 CAL</span>
+    <button class="venue-rm" onclick="removeVenue(${id})" title="Remove venue">×</button>`;
   list.appendChild(div);
-
-  // show/hide workstation type when count changes
-  document.getElementById('vws-' + id).addEventListener('input', function() {
-    const wrap = document.getElementById('vwstype-wrap-' + id);
-    wrap.style.display = parseInt(this.value) > 0 ? 'block' : 'none';
-  });
 
   // drag-to-reorder
   div.draggable = true;
@@ -933,9 +912,8 @@ function calcAll() {
   venues.forEach((v, i) => {
     const name = v.name || `Venue ${i + 1}`;
     const ws   = gv('vws-' + v.id);
-    const wsType = gr('vwstype-' + v.id);
     lines.push({ label:`${name} — SmartController`, type:'Device CAL', where:'Head Office (VPN)', cals:1, vid:v.id });
-    if (ws > 0) lines.push({ label:`${name} — workstations`, type: wsType==='device'?'Device CAL':'User CAL', where:'Head Office (VPN)', cals:ws, vid:v.id });
+    if (ws > 0) lines.push({ label:`${name} — workstations`, type:'User CAL', where:'Head Office (VPN)', cals:ws, vid:v.id });
   });
 
   return { lines, total: lines.reduce((s,l)=>s+l.cals,0), hoRem, hoRType };
@@ -1312,7 +1290,7 @@ function getState() {
     sTotal: gv('spec-users-total'), sConc: gv('spec-users-concurrent'),
     sVenues: gv('spec-venues'), sDbSize: gv('spec-db-size'),
     cloud: document.getElementById('spec-cloud')?.checked || false,
-    venues: venues.map(v => ({ id: v.id, name: v.name, ws: gv('vws-' + v.id), wstype: gr('vwstype-' + v.id) }))
+    venues: venues.map(v => ({ id: v.id, name: v.name, ws: gv('vws-' + v.id) }))
   };
 }
 
@@ -1353,11 +1331,6 @@ function applyState(d) {
       const el = id => document.getElementById(id);
       if (el('vname-' + vd.id)) el('vname-' + vd.id).value = vd.name || '';
       if (el('vws-' + vd.id))   el('vws-' + vd.id).value   = vd.ws || 0;
-      if (vd.wstype) sr('vwstype-' + vd.id, vd.wstype);
-      if ((vd.ws || 0) > 0) {
-        const wrap = document.getElementById('vwstype-wrap-' + vd.id);
-        if (wrap) wrap.style.display = 'block';
-      }
       const v = venues.find(v => v.id === vd.id);
       if (v) v.name = vd.name || '';
     });
